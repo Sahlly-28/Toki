@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔐 Вход — Токи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    header {
+      width: 100%;
+      background: rgba(0,0,0,0.7);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      box-sizing: border-box;
+    }
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    header a:hover {
+      color: #ffd700;
+    }
+    form {
+      background: #111;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #7c3aed;
+      width: 300px;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a78bfa;
+    }
+    .error {
+      color: #ff5555;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">🏠 Главная</a>
+  <a href="login.html">🔐 Вход</a>
+  <a href="clicker.html">🎮 Кликер</a>
+  <a href="chat.html">💬 Чат</a>
+  <a href="badges.html">🏆 Бейджи</a>
+  <a href="profil.html">👤 Профиль</a>
+  <a href="leader.html">🏆leader</a>
+</header>
+
+<form id="loginForm" autocomplete="off">
+  <h2>Вход</h2>
+  <div class="error" id="errorMsg"></div>
+  <input type="text" id="username" placeholder="Введите имя" />
+  <button type="submit">Войти</button>
+</form>
+
+<script>
+  const form = document.getElementById('loginForm');
+  const errorMsg = document.getElementById('errorMsg');
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+
+    if (username.length < 2) {
+      errorMsg.textContent = 'Введите корректное имя (мин. 2 символа)';
+      return;
+    }
+
+    // Сохраняем имя в localStorage
+    localStorage.setItem('username', username);
+
+    // Сбрасываем счетчик кликов (если есть)
+    localStorage.setItem('clickCount', '0');
+
+    // Перенаправляем на страницу профиля
+    window.location.href = 'profil.html';
+  });
+</script>
+
+</body>
+</html>
+

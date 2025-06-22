@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Профиль — Токи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* Фон с анимацией — можно использовать твой стиль */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 200vw; height: 200vh;
+      background:
+        radial-gradient(circle at 30% 30%, #ff0080, transparent 50%),
+        radial-gradient(circle at 70% 40%, #00ffd5, transparent 50%),
+        radial-gradient(circle at 40% 70%, #fffd00, transparent 50%),
+        radial-gradient(circle at 60% 60%, #00ff00, transparent 50%);
+      animation: moveBackground 30s linear infinite;
+      z-index: -1;
+      filter: blur(100px);
+    }
+
+    @keyframes moveBackground {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(5%, -5%) rotate(180deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      color: #7c3aed;
+      margin: 0;
+    }
+    header nav a {
+      color: white;
+      margin-left: 1rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    header nav a:hover {
+      color: #ffd700;
+    }
+
+    .profile-card {
+      background: #111;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 25px #7c3aedaa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #7c3aed;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 48px;
+      font-weight: bold;
+      color: #fff;
+      margin-bottom: 1rem;
+      user-select: none;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #d8b4fe;
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-level {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 1.5rem;
+    }
+
+    .progress-container {
+      width: 100%;
+      background: #222;
+      border-radius: 9999px;
+      height: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 0 5px #000;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed, #a78bfa);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .progress-text {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .logout-btn {
+      margin-top: 2rem;
+      padding: 0.7rem 1.5rem;
+      border: none;
+      border-radius: 9999px;
+      background: #7c3aed;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 0 10px #7c3aedaa;
+      transition: background-color 0.3s;
+    }
+
+    .logout-btn:hover {
+      background-color: #a78bfa;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Профиль</h1>
+    <nav>
+      <a href="index.html">🏠 Главная</a>
+      <a href="clicker.html">🎮 Кликер</a>
+      <a href="chat.html">💬 Чат</a>
+      <a href="badges.html">🏆 Бейджи</a>
+      <a href="profil.html"> 👤Профил</a>
+      <a href="leader.html">🏆leader</a>
+      <a href="login.html" id="logoutLink" style="color:#ff5555; display:none;">🚪 Выйти</a>
+    </nav>
+  </header>
+
+  <div class="profile-card" id="profileCard">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div class="profile-name" id="profileName">Имя пользователя</div>
+    <div class="profile-level" id="profileLevel">Уровень: 1</div>
+
+    <div class="progress-container" aria-label="Прогресс уровня">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">0 / 100 XP</div>
+
+    <button class="logout-btn" id="logoutBtn" style="display:none;">Выйти</button>
+  </div>
+
+  <script>
+    // Получаем данные пользователя из localStorage
+    const username = localStorage.getItem('username');
+    // Пример: уровень и прогресс храним в localStorage, или считаем от clickCount
+    const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+
+    const profileName = document.getElementById('profileName');
+    const profileAvatar = document.getElementById('profileAvatar');
+    const profileLevel = document.getElementById('profileLevel');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const logoutLink = document.getElementById('logoutLink');
+
+    if (!username) {
+      // Если не залогинен — редирект на страницу входа
+      window.location.href = 'login.html';
+    } else {
+      profileName.textContent = username;
+
+      // Покажем первую букву имени в аватаре
+      profileAvatar.textContent = username[0].toUpperCase();
+
+      // Примерная система уровней (можно изменить)
+      // Каждый уровень = 100 XP (кликов)
+      const level = Math.floor(clickCount / 100) + 1;
+      const xpInLevel = clickCount % 100;
+      const xpToNext = 100;
+
+      profileLevel.textContent = `Уровень: ${level}`;
+      progressBar.style.width = (xpInLevel / xpToNext * 100) + '%';
+      progressText.textContent = `${xpInLevel} / ${xpToNext} XP`;
+
+      // Показать кнопку выхода
+      logoutBtn.style.display = 'inline-block';
+      logoutLink.style.display = 'inline';
+
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem('username');
+        localStorage.removeItem('clickCount');
+        window.location.href = 'login.html';
+      });
+      logoutLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem('username');
+        localStorage.removeItem('clickCount');
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
+
+</body>
+</html>
+

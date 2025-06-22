@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🏆 Таблица лидеров — Токи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0; padding: 1rem;
+    }
+    h1 {
+      color: #a78bfa;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      max-width: 600px;
+      margin: 1rem auto;
+      border-collapse: collapse;
+      background: #111;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 10px #7c3aedaa;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #444;
+      text-align: center;
+    }
+    th {
+      background: #7c3aed;
+      font-weight: 600;
+    }
+    tr:hover {
+      background: #a78bfa33;
+    }
+  </style>
+</head>
+<body>
+
+<style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    header {
+      width: 100%;
+      background: rgba(0,0,0,0.7);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      box-sizing: border-box;
+    }
+    header a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    header a:hover {
+      color: #ffd700;
+    }
+    form {
+      background: #111;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #7c3aed;
+      width: 300px;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      margin-bottom: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #a78bfa;
+    }
+    .error {
+      color: #ff5555;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html">🏠 Главная</a>
+  <a href="login.html">🔐 Вход</a>
+  <a href="clicker.html">🎮 Кликер</a>
+  <a href="chat.html">💬 Чат</a>
+  <a href="badges.html">🏆 Бейджи</a>
+  <a href="profil.html">👤 Профиль</a>
+  <a href="leader.html">🏆leader</a>
+</header>
+
+<h1>🏆 Таблица лидеров</h1>
+    
+<table id="leadersTable">
+  <thead>
+    <tr><th>Место</th><th>Имя</th><th>Очки</th></tr>
+  </thead>
+  <tbody>
+    <!-- Сюда вставим строки с лидерами -->
+  </tbody>
+</table>
+
+<script>
+  // Пример данных в localStorage:
+  // localStorage.setItem('usersScores', JSON.stringify([{username:'Анна', score:150}, {username:'Иван', score:120}, ...]));
+
+  const leadersTableBody = document.querySelector('#leadersTable tbody');
+
+  function loadLeaders() {
+    let usersScores = JSON.parse(localStorage.getItem('usersScores')) || [];
+
+    // Сортируем по убыванию очков
+    usersScores.sort((a, b) => b.score - a.score);
+
+    // Очищаем таблицу
+    leadersTableBody.innerHTML = '';
+
+    usersScores.forEach((user, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${user.username}</td>
+        <td>${user.score}</td>
+      `;
+      leadersTableBody.appendChild(tr);
+    });
+  }
+
+  loadLeaders();
+</script>
+
+</body>
+</html>
+

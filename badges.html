@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>🏆 Бейджи — Токи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #000;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200vw;
+      height: 200vh;
+      background:
+        radial-gradient(circle at 30% 30%, #ff0080, transparent 50%),
+        radial-gradient(circle at 70% 40%, #00ffd5, transparent 50%),
+        radial-gradient(circle at 40% 70%, #fffd00, transparent 50%),
+        radial-gradient(circle at 60% 60%, #00ff00, transparent 50%);
+      animation: moveBackground 30s linear infinite;
+      z-index: -1;
+      filter: blur(100px);
+    }
+
+    @keyframes moveBackground {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      50% { transform: translate(5%, -5%) rotate(180deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+
+    header {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      color: #7c3aed;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 0.8rem;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #ffd700;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .badge {
+      background: #111;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 0 15px #7c3aed55;
+      opacity: 0.3;
+      transition: opacity 0.3s ease;
+    }
+
+    .badge.active {
+      opacity: 1;
+      box-shadow: 0 0 20px #a78bfa;
+    }
+
+    .badge img {
+      width: 60px;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge h3 {
+      margin: 0.5rem 0 0.2rem;
+      color: #d8b4fe;
+    }
+
+    .badge p {
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(0,0,0,0.7);
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Бейджи</h1>
+    <nav>
+      <a href="index.html">🏠 Главная</a>
+      <a href="login.html">🔐 Вход</a>
+      <a href="clicker.html">🎮 Кликер</a>
+      <a href="chat.html">💬 Чат</a>
+      <a href="badges.html">🏆 Бейджи</a>
+       <a href="profil.html">👤Профил</a>
+       <a href="leader.html">🏆leader</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="badges">
+      <div class="badge" data-required="10">
+        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="10 кликов">
+        <h3>10 кликов</h3>
+        <p>🎉 Первый шаг</p>
+      </div>
+      <div class="badge" data-required="100">
+        <img src="https://cdn-icons-png.flaticon.com/512/747/747545.png" alt="100 кликов">
+        <h3>100 кликов</h3>
+        <p>🧠 Кликер профи</p>
+      </div>
+      <div class="badge" data-required="1000">
+        <img src="https://cdn-icons-png.flaticon.com/512/866/866218.png" alt="1000 кликов">
+        <h3>1000 кликов</h3>
+        <p>🔥 Почти миллионер</p>
+      </div>
+      <div class="badge" data-required="10000">
+        <img src="https://cdn-icons-png.flaticon.com/512/1998/1998611.png" alt="10000 кликов">
+        <h3>10,000 кликов</h3>
+        <p>💎 Ты легенда</p>
+      </div>
+      <div class="badge" data-required="100000">
+        <img src="https://cdn-icons-png.flaticon.com/512/2764/2764592.png" alt="100000 кликов">
+        <h3>100,000 кликов</h3>
+        <p>🤖 Машина</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 Токи. Все права защищены.</p>
+  </footer>
+
+  <script>
+    const badges = document.querySelectorAll('.badge');
+    const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+
+    badges.forEach(badge => {
+      const required = parseInt(badge.dataset.required);
+
+      // Прогресс текст
+      const progressText = document.createElement('div');
+      progressText.style.marginTop = '0.5rem';
+      progressText.style.fontSize = '0.85rem';
+
+      // Прогресс бар
+      const barContainer = document.createElement('div');
+      barContainer.style.height = '8px';
+      barContainer.style.background = '#333';
+      barContainer.style.borderRadius = '4px';
+      barContainer.style.overflow = 'hidden';
+      barContainer.style.marginTop = '0.3rem';
+
+      const bar = document.createElement('div');
+      bar.style.height = '100%';
+      bar.style.width = `${Math.min((clickCount / required) * 100, 100)}%`;
+      bar.style.background = clickCount >= required ? '#8ef58e' : '#7c3aed';
+      bar.style.transition = 'width 0.3s ease';
+
+      barContainer.appendChild(bar);
+
+      if (clickCount >= required) {
+        badge.classList.add('active');
+        progressText.textContent = '✅ Получено!';
+        progressText.style.color = '#8ef58e';
+      } else {
+        progressText.textContent = `Прогресс: ${clickCount} / ${required}`;
+        progressText.style.color = '#ccc';
+      }
+
+      badge.appendChild(progressText);
+      badge.appendChild(barContainer);
+    });
+  </script>
+
+</body>
+</html>
+
+

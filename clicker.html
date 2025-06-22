@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Кликер — Токи</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: "Segoe UI", sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(circle at 30% 30%, #ff0080 0%, transparent 50%),
+        radial-gradient(circle at 70% 40%, #00ffd5 0%, transparent 50%),
+        radial-gradient(circle at 40% 70%, #fffd00 0%, transparent 50%),
+        radial-gradient(circle at 60% 60%, #00ff00 0%, transparent 50%);
+      animation: moveBackground 30s linear infinite;
+      z-index: -2;
+    }
+
+    @keyframes moveBackground {
+      0% { transform: translate(0%, 0%) rotate(0deg); }
+      50% { transform: translate(10%, -10%) rotate(180deg); }
+      100% { transform: translate(0%, 0%) rotate(360deg); }
+    }
+
+    body {
+      background: #000;
+      position: relative;
+      z-index: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    nav {
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #ffd700;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      z-index: 1;
+      position: relative;
+    }
+
+    h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+    #counter { font-size: 4rem; margin: 1rem 0; }
+    #rank { font-size: 1.2rem; margin-bottom: 2rem; color: #ccc; }
+
+    .click-button {
+      background: linear-gradient(135deg, #1d9bf0, #9145f5);
+      border: none;
+      padding: 1rem 2.5rem;
+      font-size: 1.5rem;
+      color: #fff;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.3s;
+    }
+
+    .click-button:hover {
+      box-shadow: 0 0 20px #fff;
+    }
+
+    .click-button:active {
+      transform: scale(0.96);
+    }
+
+    .skin-buttons, .shop {
+      margin-top: 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .skin-buttons button, .shop button {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .skin-buttons button:hover, .shop button:hover {
+      background: rgba(255,255,255,0.2);
+      color: #ffd700;
+    }
+  </style>
+</head>
+<body>
+
+   <header>
+    <nav>
+      <a href="index.html">🏠 Главная</a>
+      <a href="login.html">🔐 Вход</a>
+      <a href="clicker.html">🎮 Кликер</a>
+      <a href="chat.html">💬 Чат</a>
+      <a href="badges.html">🏆 Бейджи</a>
+      <a href="profil.html">👤Профил</a>
+      <a href="leader.html">🏆leader</a>
+    </nav>
+  </header>
+
+  <main>
+    <h1>🖱 Кликер — Токи</h1>
+    <div id="counter">0</div>
+    <p id="rank">👶 Начинающий</p>
+    <button class="click-button" onclick="clicker()">Кликни меня</button>
+
+    <div class="skin-buttons">
+      <button onclick="applySkin('linear-gradient(135deg, #1d9bf0, #9145f5)')">X‑Градиент</button>
+      <button onclick="applySkin('linear-gradient(135deg, #f91880, #ff7a00)')">Розово‑Оранжевый</button>
+      <button onclick="applySkin('linear-gradient(135deg, #00c9a7, #92fe9d)')">Мятно‑Зелёный</button>
+    </div>
+
+    <div class="shop">
+      <button onclick="buyUpgrade('multiplier', 100)">💥 Удвоить клик (100)</button>
+      <button onclick="buyUpgrade('autoclick', 500)">🤖 Автокликер (500)</button>
+    </div>
+  </main>
+
+  <script>
+    let count = parseInt(localStorage.getItem('clickCount')) || 0;
+    let multiplier = parseInt(localStorage.getItem('clickMultiplier')) || 1;
+    let autoclick = localStorage.getItem('autoclick') === 'true';
+
+    const counter = document.getElementById('counter');
+    const rankEl = document.getElementById('rank');
+    const button = document.querySelector('.click-button');
+
+    function getRank(count) {
+      if (count >= 100000) return '🧠 Ты точно человек?';
+      if (count >= 50000) return '🔥 Машина кликов';
+      if (count >= 10000) return '🏆 Легенда';
+      if (count >= 1000) return '💰 Продвинутый';
+      if (count >= 100) return '🥉 Новичок';
+      if (count >= 10) return '👣 Первый шаг';
+      return '👶 Начинающий';
+    }
+
+    function updateUI() {
+      counter.textContent = count;
+      rankEl.textContent = getRank(count);
+    }
+
+    function clicker() {
+      count += multiplier;
+      localStorage.setItem('clickCount', count);
+      updateUI();
+
+      const badges = {
+        10: "🎉 Бейдж за 10 кликов!",
+        100: "🎉 Бейдж за 100 кликов!",
+        500: "🎉 Бейдж за 500 кликов!",
+        1000: "💰 Бейдж за 1000 кликов!",
+        5000: "🤖 Бейдж за 5000 кликов!",
+        10000: "🏆 Бейдж за 10000 кликов!",
+        50000: "🔥 Бейдж за 50000 кликов!",
+        100000: "🧠 Бейдж за 100000 кликов!"
+      };
+      if (badges[count]) alert(badges[count]);
+    }
+
+    function applySkin(gradient) {
+      button.style.background = gradient;
+      localStorage.setItem('skinGradient', gradient);
+    }
+
+    function buyUpgrade(type, cost) {
+      if (count < cost) {
+        alert("Не хватает кликов!");
+        return;
+      }
+      count -= cost;
+
+      if (type === "multiplier") {
+        multiplier++;
+        localStorage.setItem('clickMultiplier', multiplier);
+        alert("Мощность клика увеличена! 🔥");
+      } else if (type === "autoclick") {
+        if (!autoclick) {
+          autoclick = true;
+          localStorage.setItem('autoclick', 'true');
+          alert("Автокликер включен! 🤖");
+          startAutoclick();
+        } else {
+          alert("Автокликер уже включен!");
+        }
+      }
+
+      localStorage.setItem('clickCount', count);
+      updateUI();
+    }
+
+    function startAutoclick() {
+      if (autoclick) {
+        setInterval(() => {
+          count += multiplier;
+          localStorage.setItem('clickCount', count);
+          updateUI();
+        }, 1000);
+      }
+    }
+
+    window.onload = () => {
+      const savedSkin = localStorage.getItem('skinGradient');
+      if (savedSkin) button.style.background = savedSkin;
+      updateUI();
+      if (autoclick) startAutoclick();
+    };
+
+
+  const badges = document.querySelectorAll('.badge');
+  const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+
+  badges.forEach(badge => {
+    const required = parseInt(badge.dataset.required);
+
+    const progress = document.createElement('div');
+    progress.style.marginTop = '0.5rem';
+    progress.style.fontSize = '0.85rem';
+    progress.style.color = '#aaa';
+
+    if (clickCount >= required) {
+      badge.classList.add('active');
+      progress.textContent = '✅ Получено!';
+      progress.style.color = '#8ef58e';
+    } else {
+      progress.textContent = `Кликов: ${clickCount} / ${required}`;
+    }
+
+    badge.appendChild(progress);
+  });
+
+
+  </script>
+</body>
+</html>
+
+

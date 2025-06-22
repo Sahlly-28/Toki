@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>💬 Чат — Токи</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+  body {
+    background: #000;
+    color: #fff;
+    font-family: "Segoe UI", sans-serif;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    flex-direction: column; /* чтобы меню сверху */
+  }
+  header {
+    background: #7c3aed55;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px #7c3aed55;
+  }
+  header h1 {
+    margin: 0;
+    color: #a78bfa;
+    font-weight: 700;
+    font-size: 1.5rem;
+  }
+  nav a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1.5rem;
+    font-weight: 600;
+    transition: color 0.3s;
+  }
+  nav a:hover {
+    color: #7c3aed;
+  }
+  nav {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Основной контейнер с друзьями и чатом */
+  #mainContent {
+    flex-grow: 1;
+    display: flex;
+    overflow: hidden;
+  }
+  
+  #friendsList {
+    width: 200px;
+    background: #111;
+    padding: 1rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-right: 1px solid #444;
+  }
+  
+  /* Новые стили для формы добавления друга */
+  #addFriendForm {
+    margin-top: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+  #addFriendForm input[type="text"] {
+    flex-grow: 1;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    box-sizing: border-box;
+  }
+  #addFriendForm button {
+    background: #7c3aed;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  #addFriendForm button:hover {
+    background: #a78bfa;
+  }
+  
+  /* Остальные стили (если нужны, добавь сюда) */
+</style>
+
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      flex-direction: column; /* чтобы меню сверху */
+    }
+    header {
+      background: #111;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px #7c3aed55;
+    }
+    header h1 {
+      margin: 0;
+      color: #a78bfa;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    nav a {
+      color: white;
+      text-decoration: none;
+      margin-left: 1.5rem;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #7c3aed;
+    }
+    nav {
+      display: flex;
+      align-items: center;
+    }
+
+    /* Основной контейнер с друзьями и чатом */
+    #mainContent {
+      flex-grow: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    /* Остальные твои стили для #friendsList и #chatArea */
+    #friendsList {
+      width: 200px;
+      background: #111;
+      padding: 1rem;
+      box-sizing: border-box;
+      overflow-y: auto;
+      border-right: 1px solid #444;
+    }
+    /* ... остальные стили без изменений ... */
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>💬 Чат</h1>
+  <nav>
+    <a href="index.html">🏠 Главная</a>
+    <a href="login.html">🔐 Вход</a>
+    <a href="clicker.html">🎮 Кликер</a>
+    <a href="chat.html">💬 Чат</a>
+    <a href="badges.html">🏆 Бейджи</a>
+    <a href="profil.html">👤 Профиль</a>
+    <a href="leader.html">🏆leader</a>
+  </nav>
+</header>
+
+<div id="mainContent">
+  <div id="friendsList">
+    <h2>Друзья</h2>
+    <ul id="friendsUl"></ul>
+
+    <form id="addFriendForm">
+      <input type="text" id="newFriendName" placeholder="Добавить друга по нику" autocomplete="off" required minlength="2" />
+      <button type="submit">Добавить</button>
+    </form>
+
+    <div id="logoutBtn">🚪 Выйти</div>
+  </div>
+
+  <div id="chatArea">
+    <div id="chatHeader">Выберите друга</div>
+    <div id="messages"></div>
+    <form id="messageForm" style="display:none;">
+      <input type="text" id="messageInput" placeholder="Введите сообщение" autocomplete="off" required />
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Твой JS код без изменений
+  // Объявление logoutBtn раньше в скрипте!
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  logoutBtn.addEventListener('click', () => {
+    if (confirm('Вы действительно хотите выйти?')) {
+      localStorage.removeItem('username');
+      localStorage.removeItem('clickCount');
+      window.location.href = 'login.html';
+    }
+  });
+
+  // Проверка авторизации
+  const username = localStorage.getItem('username');
+  if (!username) {
+    window.location.href = 'login.html';
+  }
+
+  const friendsUl = document.getElementById('friendsUl');
+  const chatHeader = document.getElementById('chatHeader');
+  const messagesDiv = document.getElementById('messages');
+  const messageForm = document.getElementById('messageForm');
+  const messageInput = document.getElementById('messageInput');
+  const addFriendForm = document.getElementById('addFriendForm');
+  const newFriendNameInput = document.getElementById('newFriendName');
+
+  let friends = JSON.parse(localStorage.getItem('friends_' + username)) || [];
+  let activeFriend = null;
+  let chatKey = null;
+
+  function saveFriends() {
+    localStorage.setItem('friends_' + username, JSON.stringify(friends));
+  }
+
+  function renderFriends() {
+    friendsUl.innerHTML = '';
+    friends.forEach(friend => {
+      const li = document.createElement('li');
+      li.textContent = friend;
+      li.tabIndex = 0;
+      if (friend === activeFriend) li.classList.add('active');
+      li.onclick = () => {
+        activeFriend = friend;
+        chatKey = `chat_${username}_${activeFriend}`;
+        renderFriends();
+        loadMessages();
+      };
+      li.onkeypress = (e) => {
+        if(e.key === "Enter") {
+          li.onclick();
+        }
+      }
+      friendsUl.appendChild(li);
+    });
+  }
+
+  function loadMessages() {
+    if (!activeFriend) {
+      chatHeader.textContent = "Выберите друга";
+      messagesDiv.innerHTML = '';
+      messageForm.style.display = 'none';
+      return;
+    }
+
+    chatHeader.textContent = `Чат с ${activeFriend}`;
+    messageForm.style.display = 'flex';
+
+    let chat = JSON.parse(localStorage.getItem(chatKey)) || [];
+    messagesDiv.innerHTML = '';
+    chat.forEach(msg => {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      div.classList.add(msg.sender === username ? 'sent' : 'received');
+      div.textContent = msg.text;
+      messagesDiv.appendChild(div);
+    });
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  messageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = messageInput.value.trim();
+    if (!text) return;
+    let chat = JSON.parse(localStorage.getItem(chatKey)) || [];
+    chat.push({sender: username, text});
+    localStorage.setItem(chatKey, JSON.stringify(chat));
+    messageInput.value = '';
+    loadMessages();
+  });
+
+  addFriendForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const friendName = newFriendNameInput.value.trim();
+    if (friendName.length < 2) {
+      alert('Имя друга должно быть минимум 2 символа');
+      return;
+    }
+    if (friendName === username) {
+      alert('Нельзя добавить самого себя');
+      return;
+    }
+    if (friends.includes(friendName)) {
+      alert('Этот друг уже есть в списке');
+      return;
+    }
+    friends.push(friendName);
+    saveFriends();
+    renderFriends();
+    newFriendNameInput.value = '';
+  });
+
+  renderFriends();
+  loadMessages();
+</script>
+
+</body>
+</html>
+
