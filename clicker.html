@@ -1,276 +1,855 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Кликер — Токи</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: "Segoe UI", sans-serif;
-      color: #fff;
-      overflow: hidden;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Токи- кликер</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --glow-color: #ffd700;
+            --background-start: #232323;
+            --background-end: #000000;
+            --text-color: #ffffff;
+            --secondary-text-color: #888888;
+            --panel-bg: #1c1c1c;
+            --item-bg: #2a2a2a;
+            --border-color: #333333;
+            --rarity-common: #9ca3af;
+            --rarity-rare: #3b82f6;
+            --rarity-epic: #a855f7;
+            --rarity-legendary: #f59e0b;
+        }
 
-    body::before {
-      content: "";
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background:
-        radial-gradient(circle at 30% 30%, #ff0080 0%, transparent 50%),
-        radial-gradient(circle at 70% 40%, #00ffd5 0%, transparent 50%),
-        radial-gradient(circle at 40% 70%, #fffd00 0%, transparent 50%),
-        radial-gradient(circle at 60% 60%, #00ff00 0%, transparent 50%);
-      animation: moveBackground 30s linear infinite;
-      z-index: -2;
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: radial-gradient(circle, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            user-select: none;
+            -webkit-user-select: none;
+        }
 
-    @keyframes moveBackground {
-      0% { transform: translate(0%, 0%) rotate(0deg); }
-      50% { transform: translate(10%, -10%) rotate(180deg); }
-      100% { transform: translate(0%, 0%) rotate(360deg); }
-    }
+        /* --- Основные секции --- */
+        .section-view {
+            flex-grow: 1;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            padding: 1rem 1rem 70px 1rem; /* Отступ снизу для навбара */
+        }
+        .section-view.active {
+            display: flex;
+        }
+        #clicker-section {
+            justify-content: center;
+        }
 
-    body {
-      background: #000;
-      position: relative;
-      z-index: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+        /* --- Элементы кликера --- */
+        #score-container { display: flex; align-items: center; gap: 0.5rem; font-size: 2.5rem; font-weight: bold; }
+        #score-icon { width: 36px; height: 36px; }
+        #rank { color: var(--secondary-text-color); margin-top: 0.5rem; font-size: 1rem; }
+        #clicker-container { position: relative; margin: 2rem 0; }
+        #coin {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #fde047, #f59e0b);
+            background-size: cover;
+            cursor: pointer;
+            transition: transform 0.1s ease-out;
+            border: 3px solid rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color);
+            animation: pulse 2s infinite ease-in-out;
+        }
+        #coin:active { transform: scale(0.95); }
+        @keyframes pulse {
+            50% { box-shadow: 0 0 30px var(--glow-color), 0 0 50px var(--glow-color); }
+        }
+        .floating-number { position: absolute; font-size: 2rem; font-weight: bold; color: var(--text-color); text-shadow: 0 0 5px var(--glow-color); animation: floatUp 1.5s ease-out forwards; pointer-events: none; }
+        @keyframes floatUp { 100% { transform: translateY(-150px); opacity: 0; } }
 
-    nav {
-      padding: 1rem;
-      display: flex;
-      justify-content: center;
-      gap: 1.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-    }
+        /* --- Энергия --- */
+        #energy-container { width: 80%; max-width: 300px; text-align: left; margin-top: 1rem; }
+        #energy-bar-wrapper { background-color: var(--border-color); border-radius: 10px; padding: 3px; }
+        #energy-bar { height: 12px; background: linear-gradient(90deg, #fde047, #f59e0b); border-radius: 7px; width: 100%; transition: width 0.2s ease-in-out; }
+        
+        /* --- Общие стили панелей --- */
+        h2 { text-align: center; }
+        .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; width: 100%; }
+        .item-list { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 500px; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; background-color: var(--item-bg); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px; transition: background-color 0.2s, transform 0.1s; }
+        .list-item:active { transform: scale(0.98); }
+        .list-item.locked { opacity: 0.5; cursor: not-allowed; }
+        .list-item .item-icon { font-size: 2rem; color: var(--glow-color); }
+        
+        /* --- Скины --- */
+        .skin-item { background-color: var(--item-bg); border: 2px solid var(--border-color); border-radius: 12px; padding: 0.5rem; text-align: center; cursor: pointer; position: relative; overflow: hidden; }
+        .skin-item img { width: 100%; height: auto; border-radius: 8px; }
+        .skin-item .skin-name { font-size: 0.8rem; margin-top: 0.5rem; }
+        .skin-item .skin-rarity { font-size: 0.7rem; font-weight: bold; }
+        .skin-item.active { border-color: var(--glow-color); box-shadow: 0 0 10px var(--glow-color); }
+        .skin-item.locked { opacity: 0.6; }
+        .skin-item .rarity-Common { color: var(--rarity-common); }
+        .skin-item .rarity-Rare { color: var(--rarity-rare); }
+        .skin-item .rarity-Epic { color: var(--rarity-epic); }
+        .skin-item .rarity-Legendary { color: var(--rarity-legendary); }
 
-    nav a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        /* --- Лидеры --- */
+        #leaderboard-list { list-style-type: none; padding: 0; width: 100%; max-width: 500px; }
+        #leaderboard-list li { display: flex; justify-content: space-between; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.5rem; }
+        #leaderboard-list li:nth-child(odd) { background-color: var(--item-bg); }
+        #leaderboard-list .player-highlight { background-color: var(--glow-color) !important; color: #000; font-weight: bold; }
 
-    nav a:hover {
-      color: #ffd700;
-    }
+        /* --- Задания и Brawl Pass --- */
+        .task-item button, .pass-item button { background-color: var(--glow-color); color: #000; border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .task-item button:disabled, .pass-item button:disabled { background-color: var(--border-color); color: var(--secondary-text-color); cursor: not-allowed; }
+        #brawl-pass-container { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 500px; }
+        .pass-item { border-left: 4px solid var(--border-color); }
+        .pass-item.unlocked { border-left-color: var(--glow-color); }
+        .pass-item.claimed { border-left-color: var(--rarity-common); }
 
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-      z-index: 1;
-      position: relative;
-    }
-
-    h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-    #counter { font-size: 4rem; margin: 1rem 0; }
-    #rank { font-size: 1.2rem; margin-bottom: 2rem; color: #ccc; }
-
-    .click-button {
-      background: linear-gradient(135deg, #1d9bf0, #9145f5);
-      border: none;
-      padding: 1rem 2.5rem;
-      font-size: 1.5rem;
-      color: #fff;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: transform 0.1s ease, box-shadow 0.3s;
-    }
-
-    .click-button:hover {
-      box-shadow: 0 0 20px #fff;
-    }
-
-    .click-button:active {
-      transform: scale(0.96);
-    }
-
-    .skin-buttons, .shop {
-      margin-top: 2rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .skin-buttons button, .shop button {
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 999px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .skin-buttons button:hover, .shop button:hover {
-      background: rgba(255,255,255,0.2);
-      color: #ffd700;
-    }
-  </style>
+        /* --- Нижний навбар --- */
+        footer { width: 100%; background-color: var(--panel-bg); border-top: 1px solid var(--border-color); height: 60px; position: fixed; bottom: 0; left: 0; z-index: 100; }
+        nav { display: flex; justify-content: space-around; align-items: center; height: 100%; }
+        nav a { color: var(--secondary-text-color); text-decoration: none; font-weight: bold; font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s; padding: 0 0.5rem; }
+        nav a.active-nav, nav a:hover { color: var(--glow-color); }
+        nav i { font-size: 1.5rem; }
+        
+        /* --- Уведомление --- */
+        #notification { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px; border-radius: 10px; z-index: 1000; opacity: 0; transition: opacity 0.5s, top 0.5s; pointer-events: none; }
+    </style>
 </head>
 <body>
-
-   <header>
-    <nav>
-      <a href="index.html">🏠 Главная</a>
-      <a href="login.html">🔐 Вход</a>
-      <a href="clicker.html">🎮 Кликер</a>
-      <a href="chat.html">💬 Чат</a>
-      <a href="badges.html">🏆 Бейджи</a>
-      <a href="profil.html">👤Профил</a>
-      <a href="leader.html">🏆leader</a>
-    </nav>
-  </header>
-
-  <main>
-    <h1>🖱 Кликер — Токи</h1>
-    <div id="counter">0</div>
-    <p id="rank">👶 Начинающий</p>
-    <button class="click-button" onclick="clicker()">Кликни меня</button>
-
-    <div class="skin-buttons">
-      <button onclick="applySkin('linear-gradient(135deg, #1d9bf0, #9145f5)')">X‑Градиент</button>
-      <button onclick="applySkin('linear-gradient(135deg, #f91880, #ff7a00)')">Розово‑Оранжевый</button>
-      <button onclick="applySkin('linear-gradient(135deg, #00c9a7, #92fe9d)')">Мятно‑Зелёный</button>
+    <div id="clicker-section" class="section-view active">
+        <div id="score-container">
+             <img id="score-icon" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0yMCAwQzMxLjA0NTcgMCA0MCA4Ljk1NDMgNDAgMjBDNDAgMzEuMDQ1NyAzMS4wNDU3IDQwIDIwIDQwQzguOTU0MyA0MCAwIDMxLjA0NTcgMCAyMEMwIDguOTU0MyA4Ljk1NDMgMCAyMCAwWk0yMi44MDIyIDEzLjM2MDNDMjEuNzQ5NCAxMi41NzU4IDIwLjE2MzQgMTIuNTYwMiAxOS4wOTM4IDEzLjMyNDdDMTkuMDY4MSAxMy4zNDAxIDE5LjA0MyAxMy4zNTYxIDE5LjAxODUgMTMuMzczN0wxNC4yODI2IDE2LjExMkMxMy4wMDI3IDE2Ljc1ODggMTIuNzM5OSAxOC4zNzYgMTMuNzI2MiAxOS4zNjIzQzE0LjcxMjQgMjAuMzQ4NyAxNi4zMjk2IDIwLjA4NTggMTcuMjgxOCAxOS4wNDM1TDE5LjQ5MjcgMTYuOTEyNEMxOS42MTEgMTYuODI0MiAxOS44NDM3IDE2LjgwODUgMTkuOTg3NyAxNi44OTA0TDIzLjM5NTQgMTguNzU5M0MyNC43MzEgMTkuNDg3MSAyNi4zOTYxIDE4LjkzMzUgMjcuMTI0IDE3LjU5NzNDMjcuODUxOCAxNi4yNjExIDI3LjI5ODMgMTQuNjAwMSAyNS45NjIgMTMuODYyMkwyMi44MDIyIDEzLjM2MDNaTTI1LjcwNzQgMjMuODg4QzI2Ljk5NzMgMjMuMjQxMiAyNy4yNjAxIDIxLjYyNCAyNi4yNzM4IDIwLjYzNzdDMjUuMjg3NiAxOS42NTEzIDIzLjY3MDMgMTkuOTE0MiAyMi43MTgxIDIwLjY5NTY1TDIwLjUwNzMgMjMuMDg3NkMyMC4zODkgMjMuMTc1OCAyMC4xNTY2MyAyMy4xOTA1IDIwLjAxMjMgMjMuMTA5NkwxNi42MDQ1IDIxLjI0MDdDMTUuMjY5IDIwLjUxMjkgMTMuNjAzOCAyMS4wNjY1IDEyLjg3NTkgMjIuNDAyN0MxMi4xNDgxIDIzLjczODkgMTIuNzAxNiAyNS40MDk5IDE0LjAzNzkgMjYuMTM3OEwxNy4xOTc4IDI3LjYzOTdDMTguMjUxMCAyOC40MjQyIDE5LjgzNjYgMjguNDM5OCAyMC45MDYyIDI3LjY3NTJDMjAuOTMxOCAyNy42NTk5IDIwLjkyNSAyNy42NDM5IDIwLjE4MTQgMjcuNjI2M0wyNS43MDc0IDIzLjg4OFoiIGZpbGw9IiNGRkQ1MDAiLz4KPC9zdmc+Cg==" alt="coin icon">
+            <span id="score">0</span>
+        </div>
+        <p id="rank">👶 Начинающий</p>
+        <div id="clicker-container">
+            <div id="coin"></div>
+        </div>
+        <div id="energy-container">
+            <span>⚡️ <span id="energy">500</span> / <span id="max-energy">500</span></span>
+            <div id="energy-bar-wrapper">
+                <div id="energy-bar"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="shop">
-      <button onclick="buyUpgrade('multiplier', 100)">💥 Удвоить клик (100)</button>
-      <button onclick="buyUpgrade('autoclick', 500)">🤖 Автокликер (500)</button>
+    <div id="boosts-section" class="section-view">
+        <h2>🚀 Бусты</h2>
+        <div id="boosts-container" class="item-list"></div>
     </div>
-  </main>
+    
+    <div id="skins-section" class="section-view">
+        <h2>🎨 Скины</h2>
+        <div id="skins-container" class="item-grid"></div>
+    </div>
+    
+    <div id="tasks-section" class="section-view">
+        <h2>🎯 Задания</h2>
+        <div id="tasks-container" class="item-list"></div>
+    </div>
 
-  <script>
-    let count = parseInt(localStorage.getItem('clickCount')) || 0;
-    let multiplier = parseInt(localStorage.getItem('clickMultiplier')) || 1;
-    let autoclick = localStorage.getItem('autoclick') === 'true';
+    <div id="pass-section" class="section-view">
+        <h2>💎 Brawl Pass</h2>
+        <div id="brawl-pass-status"></div>
+        <div id="brawl-pass-container" class="item-list"></div>
+    </div>
 
-    const counter = document.getElementById('counter');
-    const rankEl = document.getElementById('rank');
-    const button = document.querySelector('.click-button');
+    <div id="leaders-section" class="section-view">
+        <h2>🏆 Лидеры</h2>
+        <ol id="leaderboard-list"></ol>
+    </div>
 
-    function getRank(count) {
-      if (count >= 100000) return '🧠 Ты точно человек?';
-      if (count >= 50000) return '🔥 Машина кликов';
-      if (count >= 10000) return '🏆 Легенда';
-      if (count >= 1000) return '💰 Продвинутый';
-      if (count >= 100) return '🥉 Новичок';
-      if (count >= 10) return '👣 Первый шаг';
-      return '👶 Начинающий';
-    }
 
-    function updateUI() {
-      counter.textContent = count;
-      rankEl.textContent = getRank(count);
-    }
+    <footer>
+        <nav>
+            <a href="#" class="nav-link active-nav" data-target="clicker-section"><i class="fa-solid fa-hand-pointer"></i><span>Клик</span></a>
+            <a href="#" class="nav-link" data-target="boosts-section"><i class="fa-solid fa-rocket"></i><span>Бусты</span></a>
+            <a href="#" class="nav-link" data-target="skins-section"><i class="fa-solid fa-palette"></i><span>Скины</span></a>
+            <a href="#" class="nav-link" data-target="tasks-section"><i class="fa-solid fa-tasks"></i><span>Задания</span></a>
+            <a href="#" class="nav-link" data-target="pass-section"><i class="fa-solid fa-gem"></i><span>Пасс</span></a>
+            <a href="#" class="nav-link" data-target="leaders-section"><i class="fa-solid fa-trophy"></i><span>Лидеры</span></a>
+        </nav>
+    </footer>
 
-    function clicker() {
-      count += multiplier;
-      localStorage.setItem('clickCount', count);
-      updateUI();
+    <div id="notification"></div>
 
-      const badges = {
-        10: "🎉 Бейдж за 10 кликов!",
-        100: "🎉 Бейдж за 100 кликов!",
-        500: "🎉 Бейдж за 500 кликов!",
-        1000: "💰 Бейдж за 1000 кликов!",
-        5000: "🤖 Бейдж за 5000 кликов!",
-        10000: "🏆 Бейдж за 10000 кликов!",
-        50000: "🔥 Бейдж за 50000 кликов!",
-        100000: "🧠 Бейдж за 100000 кликов!"
-      };
-      if (badges[count]) alert(badges[count]);
-    }
+<script>
+// ===================================================================================
+// --- КОНФИГУРАЦИЯ И ДАННЫЕ ИГРЫ (КАК БАЗА ДАННЫХ) ---
+// ===================================================================================
 
-    function applySkin(gradient) {
-      button.style.background = gradient;
-      localStorage.setItem('skinGradient', gradient);
-    }
+const SKINS_DATA = {
+    'default_coin': { name: 'Стандарт', rarity: 'Common', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUMwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1LjkwNiAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0ZERTA0NyIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNFNkEzMDMiLz4KPC9saW5lYXJncmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4=', acquisition: { type: 'free' } },
+    'gold_rush': { name: 'Золото', rarity: 'Common', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUSwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1Ljk2NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0ZGRDAwMCIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNEN0Q3MDQiLz4KPC9saW5lYXJncmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4=', acquisition: { type: 'store', cost: 1000 } },
+    'sapphire': { name: 'Сапфир', rarity: 'Rare', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUSwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1Ljk2NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzU1NzdGRiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyOTQ3Q0MiLz4KPC9saW5lYXJncmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4=', acquisition: { type: 'store', cost: 10000 } },
+    'amethyst': { name: 'Аметист', rarity: 'Epic', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUSwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1LjY5NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0FBODBGMiIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM1OTI4OEUiLz4KPC9saW5lYXJncmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4=', acquisition: { type: 'store', cost: 50000 } },
+    'ruby_heart': { name: 'Рубин', rarity: 'Epic', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUSwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1LjY5NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0ZGMDAwMCIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNCNDM0M0QiLz4KPC9saW5lYXJncmFkaWVudD4KPC9zdmc+Cg==', acquisition: { type: 'pass', level: 10, premium: false } },
+    'dark_matter': { name: 'Темная Материя', rarity: 'Legendary', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xMjUgMEM1NS45NjQgMCAwIDU1Ljk2NCAwIDEyNUSwIDE5NC4wMzYgNTUuOTY0IDI1MCAxMjUgMjUwQzE5NC4wMzYgMjUwIDI1MCAxOTQuMDM2IDI1MCAxMjVDMjUwIDU1LjY5NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iIzMzMzMzMyIvPgo8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwMDAwMDAiLz4KPC9saW5lYXJncmFkaWVudD4KPC9zdmc+Cg==', acquisition: { type: 'task', id: 'reach_level_10' } },
+    'diamond_king': { name: 'Король Алмазов', rarity: 'Legendary', src: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDI1MCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3Lm1wdy5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZD0iTTEyNSAwQzU1Ljk2NCAwIDAgNTUuOTY0IDAgMTI1QzAgMTk0LjAzNiA1NS45NjQgMjUwIDEyNSAyNTBDMTk0LjAzNiAyNTAgMjUwIDE5NC4wMzYgMjUwIDEyNUSwMjUwIDU1Ljk2NCAxOTQuMDM2IDAgMTI1IDBaIiBmaWxsPSJ1cmwoI2dyYWQxKSIvPgogICAgPGRlZnM+CiAgICAgICAgPGxpbmVhckdyYWRpZW50IGlkPSJncmFkMSIgeDE9IjEyNSIgeTE9IjAiIHgyPSIxMjUiIHkyPSIyNTAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iI0ZGRkZGRiIvPgogICAgICAgICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM2ODY1NjQiLz4KICAgICAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPC9kZWZzPgo8L3N2Zz4=', acquisition: { type: 'pass', level: 20, premium: true } }
+};
 
-    function buyUpgrade(type, cost) {
-      if (count < cost) {
-        alert("Не хватает кликов!");
-        return;
-      }
-      count -= cost;
+const TASKS_DATA = {
+    'daily_clicks': { type: 'daily', text: 'Сделай 1000 кликов', target: 1000, action: 'click', reward: { xp: 50, coins: 500 } },
+    'buy_boost': { type: 'daily', text: 'Купи любое улучшение', target: 1, action: 'boost', reward: { xp: 100 } },
+    'reach_level_10': { type: 'achievement', text: 'Достигни 10 уровня Multi-tap', target: 10, action: 'multitap_level', reward: { xp: 500, skinId: 'dark_matter' } }
+};
 
-      if (type === "multiplier") {
-        multiplier++;
-        localStorage.setItem('clickMultiplier', multiplier);
-        alert("Мощность клика увеличена! 🔥");
-      } else if (type === "autoclick") {
-        if (!autoclick) {
-          autoclick = true;
-          localStorage.setItem('autoclick', 'true');
-          alert("Автокликер включен! 🤖");
-          startAutoclick();
-        } else {
-          alert("Автокликер уже включен!");
-        }
-      }
+const BRAWL_PASS_REWARDS = {
+    1: { free: { coins: 1000 } },
+    2: { free: { xp: 100 }, premium: { coins: 5000 } },
+    3: { free: { coins: 2000 } },
+    4: { free: { coins: 3000 }, premium: { coins: 10000 } },
+    5: { free: { boost: 'multiTap' }, premium: { boost: 'energyLimit' } },
+    10: { free: { skinId: 'ruby_heart' }, premium: { coins: 50000 } },
+    20: { premium: { skinId: 'diamond_king' } }
+};
 
-      localStorage.setItem('clickCount', count);
-      updateUI();
-    }
+// ===================================================================================
+// --- ИГРОВОЕ СОСТОЯНИЕ (STATE) ---
+// ===================================================================================
 
-    function startAutoclick() {
-      if (autoclick) {
-        setInterval(() => {
-          count += multiplier;
-          localStorage.setItem('clickCount', count);
-          updateUI();
-        }, 1000);
-      }
-    }
+let state = {};
 
-    window.onload = () => {
-      const savedSkin = localStorage.getItem('skinGradient');
-      if (savedSkin) button.style.background = savedSkin;
-      updateUI();
-      if (autoclick) startAutoclick();
+function getDefaultState() {
+    return {
+        score: 0,
+        totalClicks: 0,
+        energy: 500,
+        boosts: {
+            multiTap: { level: 1, cost: 100, baseCost: 100, name: 'Multi-tap' }, // Added name property
+            energyLimit: { level: 1, cost: 200, baseCost: 200, power: 500, name: 'Energy Limit' }, // Added name property
+            rechargingSpeed: { level: 1, cost: 500, baseCost: 500, power: 1, name: 'Recharging Speed' }, // Added name property
+            tapBot: { level: 0, cost: 10000, baseCost: 10000, power: 0, requires: { energyLimit: 5 }, name: 'Тап Бот' } // Added name property
+        },
+        ownedSkins: ['default_coin'],
+        activeSkin: 'default_coin',
+        tasks: {
+            daily_clicks: { progress: 0, claimed: false },
+            buy_boost: { progress: 0, claimed: false },
+            reach_level_10: { progress: 0, claimed: false }
+        },
+        brawlPass: {
+            level: 1,
+            xp: 0,
+            premium: false,
+            claimed_rewards: []
+        },
+        leaderboard: [
+            { name: 'Coin Master', score: 1500000 },
+            { name: 'Clickinator', score: 980000 },
+            { name: 'Tap King', score: 750000 }
+        ],
+        playerName: 'Вы', // Changed to "Вы" for Russian context
+        lastVisit: new Date().toDateString()
     };
+}
+
+// ===================================================================================
+// --- DOM ЭЛЕМЕНТЫ ---
+// ===================================================================================
+
+const DOMElements = {
+    score: document.getElementById('score'),
+    rank: document.getElementById('rank'),
+    coin: document.getElementById('coin'),
+    clickerContainer: document.getElementById('clicker-container'),
+    energy: document.getElementById('energy'),
+    maxEnergy: document.getElementById('max-energy'),
+    energyBar: document.getElementById('energy-bar'),
+    notification: document.getElementById('notification'),
+    boostsContainer: document.getElementById('boosts-container'),
+    skinsContainer: document.getElementById('skins-container'),
+    tasksContainer: document.getElementById('tasks-container'),
+    brawlPassContainer: document.getElementById('brawl-pass-container'),
+    brawlPassStatus: document.getElementById('brawl-pass-status'),
+    leaderboardList: document.getElementById('leaderboard-list'),
+    navLinks: document.querySelectorAll('.nav-link'),
+    sections: document.querySelectorAll('.section-view')
+};
+
+// ===================================================================================
+// --- ФУНКЦИИ РЕНДЕРИНГА (ОТОБРАЖЕНИЯ) ---
+// ===================================================================================
+
+function renderAll() {
+    renderScoreAndRank();
+    renderEnergy();
+    renderCoin();
+    renderBoosts();
+    renderSkins();
+    renderTasks();
+    renderBrawlPass();
+    renderLeaderboard();
+}
+
+function renderScoreAndRank() {
+    DOMElements.score.textContent = Math.floor(state.score).toLocaleString();
+    const ranks = { 0: '👶 Начинающий', 1000: 'Начинающий', 10000: '🧠 Профи', 100000: '🏆 Легенда', 500000: '👑 Бог кликов' }; // Added more ranks
+    let currentRank = '👶 Начинающий';
+    for (const score in ranks) {
+        if (state.score >= parseInt(score)) { // Parse score to int for comparison
+            currentRank = ranks[score];
+        }
+    }
+    DOMElements.rank.textContent = currentRank;
+}
+
+function renderEnergy() {
+    const energyLimit = 500 + (state.boosts.energyLimit.level - 1) * state.boosts.energyLimit.power; // Use power from boost data
+    DOMElements.energy.textContent = Math.floor(state.energy);
+    DOMElements.maxEnergy.textContent = energyLimit;
+    DOMElements.energyBar.style.width = `${(state.energy / energyLimit) * 100}%`;
+}
+
+function renderCoin() {
+    const activeSkinData = SKINS_DATA[state.activeSkin];
+    DOMElements.coin.style.backgroundImage = `url('${activeSkinData.src}')`;
+}
+
+function renderBoosts() {
+    DOMElements.boostsContainer.innerHTML = '';
+    // Removed the inline definition as names are now in state.boosts
+    const boostsOrder = ['multiTap', 'energyLimit', 'rechargingSpeed', 'tapBot']; 
+
+    boostsOrder.forEach(id => {
+        const boostInfo = state.boosts[id]; // Get boost data directly from state
+        const item = document.createElement('div');
+        item.className = 'list-item';
+
+        let locked = false;
+        let requirementText = '';
+        if (boostInfo.requires) {
+            const reqKey = Object.keys(boostInfo.requires)[0];
+            const reqLevel = boostInfo.requires[reqKey];
+            if (state.boosts[reqKey].level < reqLevel) {
+                locked = true;
+                requirementText = `<small>Требуется: ${state.boosts[reqKey].name} ${reqLevel} ур.</small>`;
+            }
+        }
+        
+        if (locked) item.classList.add('locked');
+
+        item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i class="fa-solid ${getBoostIcon(id)} item-icon"></i> <!-- Helper function for icon -->
+                <div>
+                    <strong>${boostInfo.name}</strong>
+                    <p style="margin: 0; color: var(--secondary-text-color); font-size: 0.8rem;">
+                        ${boostInfo.level} ур. | ${getBoostDescription(id, boostInfo.level)}
+                        ${requirementText}
+                    </p>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-weight: bold;">${boostInfo.cost.toLocaleString()}</span>
+            </div>
+        `;
+        item.onclick = () => !locked && buyBoost(id, false, boostInfo.name); // Pass boost name
+        DOMElements.boostsContainer.appendChild(item);
+    });
+}
+
+// Helper function to get boost icon (can be expanded if needed)
+function getBoostIcon(id) {
+    switch (id) {
+        case 'multiTap': return 'fa-hand-pointer';
+        case 'energyLimit': return 'fa-battery-full';
+        case 'rechargingSpeed': return 'fa-bolt';
+        case 'tapBot': return 'fa-robot';
+        default: return '';
+    }
+}
+
+// Helper function to get boost description
+function getBoostDescription(id, level) {
+    switch (id) {
+        case 'multiTap': return `+${level} к клику`;
+        case 'energyLimit': return `+${500 * level} к энергии`;
+        case 'rechargingSpeed': return `+${level} к регену`;
+        case 'tapBot': return `+${level} монета/сек`;
+        default: return '';
+    }
+}
 
 
-  const badges = document.querySelectorAll('.badge');
-  const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+function renderSkins() {
+    DOMElements.skinsContainer.innerHTML = '';
+    for (const id in SKINS_DATA) {
+        const skin = SKINS_DATA[id];
+        const isOwned = state.ownedSkins.includes(id);
+        const isActive = state.activeSkin === id;
+        
+        const skinEl = document.createElement('div');
+        skinEl.className = 'skin-item';
+        
+        skinEl.innerHTML = `
+            <img src="${skin.src}" alt="${skin.name}" onerror="this.src='data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; this.alt='No Image'">
+            <div class="skin-name">${skin.name}</div>
+            <div class="skin-rarity rarity-${skin.rarity}">${skin.rarity}</div>
+        `;
+        
+        if (isActive) skinEl.classList.add('active');
 
-  badges.forEach(badge => {
-    const required = parseInt(badge.dataset.required);
+        if (isOwned) {
+            skinEl.onclick = () => {
+                state.activeSkin = id;
+                renderCoin();
+                renderSkins();
+            };
+        } else if (skin.acquisition.type === 'store') {
+            skinEl.classList.add('locked');
+            const costHtml = `<div style="font-size: 0.7rem; color: var(--glow-color); margin-top: 0.2rem;">${skin.acquisition.cost.toLocaleString()}</div>`;
+            skinEl.innerHTML += costHtml; // Add cost to locked skins
+            skinEl.onclick = () => buySkin(id);
+        } else {
+            skinEl.classList.add('locked');
+            // Add acquisition info for non-store locked skins
+            let acqText = '';
+            if (skin.acquisition.type === 'pass') {
+                acqText = `Pass Lv. ${skin.acquisition.level}${skin.acquisition.premium ? ' (Премиум)' : ''}`;
+            } else if (skin.acquisition.type === 'task') {
+                acqText = `Задание: ${TASKS_DATA[skin.acquisition.id].text}`;
+            }
+            const acqHtml = `<div style="font-size: 0.7rem; color: var(--secondary-text-color); margin-top: 0.2rem;">${acqText}</div>`;
+            skinEl.innerHTML += acqHtml;
+        }
+        DOMElements.skinsContainer.appendChild(skinEl);
+    }
+}
 
-    const progress = document.createElement('div');
-    progress.style.marginTop = '0.5rem';
-    progress.style.fontSize = '0.85rem';
-    progress.style.color = '#aaa';
+function renderTasks() {
+    DOMElements.tasksContainer.innerHTML = '';
+    for (const id in TASKS_DATA) {
+        const taskData = TASKS_DATA[id];
+        const taskState = state.tasks[id];
+        if (!taskState) continue;
 
-    if (clickCount >= required) {
-      badge.classList.add('active');
-      progress.textContent = '✅ Получено!';
-      progress.style.color = '#8ef58e';
+        const item = document.createElement('div');
+        item.className = 'list-item task-item';
+        const progress = Math.min(taskState.progress, taskData.target);
+        const isComplete = progress >= taskData.target;
+        
+        item.innerHTML = `
+            <div>
+                <strong>${taskData.text}</strong>
+                <p style="margin: 0; color: var(--secondary-text-color); font-size: 0.8rem;">
+                    ${progress} / ${taskData.target}
+                </p>
+            </div>
+            <button ${!isComplete || taskState.claimed ? 'disabled' : ''} onclick="claimTaskReward('${id}')">
+                ${taskState.claimed ? 'Получено' : 'Забрать'}
+            </button>
+        `;
+        DOMElements.tasksContainer.appendChild(item);
+    }
+}
+
+function renderBrawlPass() {
+    const nextLevelXp = state.brawlPass.level * 500;
+    DOMElements.brawlPassStatus.innerHTML = `
+        <p>Уровень: ${state.brawlPass.level} | Опыт: ${state.brawlPass.xp} / ${nextLevelXp}</p>
+        <button onclick="togglePremium()">
+            ${state.brawlPass.premium ? 'Премиум Активен' : 'Купить Премиум (100,000)'}
+        </button>
+    `;
+    
+    DOMElements.brawlPassContainer.innerHTML = '';
+    for (const level in BRAWL_PASS_REWARDS) {
+        const rewardData = BRAWL_PASS_REWARDS[level];
+        const isUnlocked = state.brawlPass.level >= level;
+        
+        const item = document.createElement('div');
+        item.className = 'list-item pass-item';
+        if (isUnlocked) item.classList.add('unlocked');
+        
+        let rewardHtml = `<strong>Уровень ${level}</strong><div style="display:flex; gap:1rem;">`;
+        
+        // Free reward
+        if (rewardData.free) {
+            const rewardId = `L${level}_free`;
+            const isClaimed = state.brawlPass.claimed_rewards.includes(rewardId);
+            if (isClaimed) item.classList.add('claimed');
+            rewardHtml += `
+                <div>
+                    <small>Бесплатно</small><br>
+                    <button ${!isUnlocked || isClaimed ? 'disabled' : ''} onclick="claimPassReward(${level}, 'free')">
+                        ${isClaimed ? '✓' : getRewardText(rewardData.free)}
+                    </button>
+                </div>`;
+        }
+        
+        // Premium reward
+        if (rewardData.premium) {
+             const rewardId = `L${level}_premium`;
+            const isClaimed = state.brawlPass.claimed_rewards.includes(rewardId);
+            if (isClaimed) item.classList.add('claimed');
+            rewardHtml += `
+                <div style="${!state.brawlPass.premium ? 'opacity:0.5' : ''}">
+                    <small>💎 Премиум</small><br>
+                    <button ${!isUnlocked || isClaimed || !state.brawlPass.premium ? 'disabled' : ''} onclick="claimPassReward(${level}, 'premium')">
+                        ${isClaimed ? '✓' : getRewardText(rewardData.premium)}
+                    </button>
+                </div>`;
+        }
+
+        rewardHtml += `</div>`;
+        item.innerHTML = rewardHtml;
+        DOMElements.brawlPassContainer.appendChild(item);
+    }
+}
+
+function getRewardText(reward) {
+    if (reward.coins) return `+${reward.coins.toLocaleString()}`;
+    if (reward.xp) return `+${reward.xp} XP`;
+    if (reward.skinId) return SKINS_DATA[reward.skinId].name;
+    if (reward.boost) return `+1 ур. ${state.boosts[reward.boost].name}`; // Display boost name
+    return 'Награда';
+}
+
+function renderLeaderboard() {
+    DOMElements.leaderboardList.innerHTML = '';
+    const fullLeaderboard = [
+        ...state.leaderboard,
+        { name: state.playerName, score: Math.floor(state.score) }
+    ].sort((a, b) => b.score - a.score);
+
+    fullLeaderboard.slice(0, 10).forEach((player, index) => {
+        const item = document.createElement('li');
+        item.innerHTML = `<span>${index + 1}. ${player.name}</span> <span>${player.score.toLocaleString()}</span>`;
+        if (player.name === state.playerName) item.classList.add('player-highlight');
+        DOMElements.leaderboardList.appendChild(item);
+    });
+}
+
+
+// ===================================================================================
+// --- ИГРОВАЯ ЛОГИКА ---
+// ===================================================================================
+
+function handleCoinClick(event) {
+    const energyPerTap = state.boosts.multiTap.level;
+    if (state.energy >= energyPerTap) {
+        state.score += energyPerTap;
+        state.energy -= energyPerTap;
+        state.totalClicks++;
+
+        createFloatingNumber(event, energyPerTap);
+        if (window.navigator.vibrate) window.navigator.vibrate(50);
+        
+        checkTaskProgress('click', 1);
+        renderScoreAndRank();
+        renderEnergy();
     } else {
-      progress.textContent = `Кликов: ${clickCount} / ${required}`;
+        showNotification('Недостаточно энергии!', 'error');
+    }
+}
+
+function regenerateEnergy() {
+    const energyLimit = state.boosts.energyLimit.power; // Use updated power
+    const regenRate = state.boosts.rechargingSpeed.level;
+    if (state.energy < energyLimit) {
+        state.energy = Math.min(state.energy + regenRate, energyLimit);
+        renderEnergy();
+    }
+}
+
+function processOfflineGains() {
+    const botLevel = state.boosts.tapBot.level;
+    if (botLevel > 0) {
+        const now = new Date();
+        const lastVisit = new Date(state.lastVisit);
+        const secondsOffline = Math.floor((now - lastVisit) / 1000);
+        const coinsPerSecond = state.boosts.tapBot.power; // Use power from boost
+        const maxOfflineSeconds = 2 * 3600; // Максимум 2 часа оффлайн фарма
+        const effectiveSeconds = Math.min(secondsOffline, maxOfflineSeconds);
+        const earnedCoins = effectiveSeconds * coinsPerSecond;
+        if(earnedCoins > 0) {
+            state.score += earnedCoins;
+            showNotification(`Тап Бот принес ${earnedCoins.toLocaleString()} монет!`, 'success');
+        }
+    }
+    state.lastVisit = new Date().toDateString();
+}
+
+function checkTaskProgress(action, value) {
+    for (const id in TASKS_DATA) {
+        const taskData = TASKS_DATA[id];
+        const taskState = state.tasks[id];
+
+        if (!taskState || taskState.claimed) continue; // Skip if task state doesn't exist or already claimed
+
+        if (taskData.action === action) {
+            if (action === 'click') {
+                taskState.progress += value;
+            } else if (action === 'boost' && taskData.action === 'buy_boost') {
+                taskState.progress += 1; // Increment for any boost purchase
+            }
+        } else if (taskData.action === 'multitap_level' && id === 'reach_level_10') {
+            taskState.progress = state.boosts.multiTap.level;
+        }
+    }
+    renderTasks(); // Re-render tasks to update progress
+}
+
+function claimTaskReward(id) {
+    const taskData = TASKS_DATA[id];
+    const taskState = state.tasks[id];
+    const isComplete = taskState.progress >= taskData.target;
+    if (isComplete && !taskState.claimed) {
+        const reward = taskData.reward;
+        if (reward.coins) state.score += reward.coins;
+        if (reward.xp) addXp(reward.xp);
+        if (reward.skinId) {
+            if (!state.ownedSkins.includes(reward.skinId)) {
+                state.ownedSkins.push(reward.skinId);
+            }
+            showNotification(`Новый скин: ${SKINS_DATA[reward.skinId].name}!`, 'success');
+        }
+        taskState.claimed = true;
+        renderAll();
+    } else if (taskState.claimed) {
+        showNotification('Награда уже получена.', 'info');
+    } else {
+        showNotification('Задание не выполнено.', 'error');
+    }
+}
+
+function addXp(amount) {
+    state.brawlPass.xp += amount;
+    let nextLevelXp = state.brawlPass.level * 500;
+    while(state.brawlPass.xp >= nextLevelXp) {
+        state.brawlPass.level++;
+        state.brawlPass.xp -= nextLevelXp;
+        showNotification(`Новый уровень Brawl Pass: ${state.brawlPass.level}!`, 'success');
+        nextLevelXp = state.brawlPass.level * 500;
+        renderBrawlPass(); // Ensure Brawl Pass UI updates after level up
+    }
+    renderBrawlPass(); // Update XP bar
+}
+
+function claimPassReward(level, type) {
+    const rewardId = `L${level}_${type}`;
+    if (state.brawlPass.claimed_rewards.includes(rewardId)) {
+        showNotification('Награда уже получена.', 'info');
+        return;
+    }
+    
+    const reward = BRAWL_PASS_REWARDS[level][type];
+    if (!reward) return; // Should not happen if rendering is correct
+
+    const isUnlocked = state.brawlPass.level >= level;
+    const isPremiumAndNeeded = type === 'premium' ? state.brawlPass.premium : true;
+
+    if (isUnlocked && isPremiumAndNeeded) {
+        if (reward.coins) state.score += reward.coins;
+        if (reward.xp) addXp(reward.xp);
+        if (reward.skinId) {
+            if (!state.ownedSkins.includes(reward.skinId)) {
+                state.ownedSkins.push(reward.skinId);
+            }
+            showNotification(`Новый скин: ${SKINS_DATA[reward.skinId].name}!`, 'success');
+        }
+        // Pass boost name when claiming from pass
+        if (reward.boost) buyBoost(reward.boost, true, state.boosts[reward.boost].name); 
+        
+        state.brawlPass.claimed_rewards.push(rewardId);
+        showNotification('Награда получена!', 'success');
+        renderAll();
+    } else {
+        showNotification('Не выполнены условия для получения награды.', 'error');
+    }
+}
+
+// Added boostName parameter
+function buyBoost(id, free = false, boostName = '') { 
+    const boost = state.boosts[id];
+    let locked = false;
+    if (boost.requires) {
+        const reqKey = Object.keys(boost.requires)[0];
+        const reqLevel = boost.requires[reqKey];
+        if (state.boosts[reqKey].level < reqLevel) {
+            locked = true;
+        }
     }
 
-    badge.appendChild(progress);
-  });
+    if (locked) {
+        showNotification('Не выполнены требования для этого буста.', 'error');
+        return;
+    }
+
+    if (free || state.score >= boost.cost) {
+        if (!free) state.score -= boost.cost;
+        boost.level++;
+        boost.cost = Math.floor(boost.baseCost * Math.pow(1.8, boost.level - 1));
+        
+        // Specific logic for tapBot power increase per level
+        if (id === 'tapBot') {
+            boost.power++;
+        }
+        // Specific logic for energyLimit power increase per level
+        if (id === 'energyLimit') {
+            boost.power = 500 * boost.level; // Each level adds 500 to max energy
+        }
+        // Specific logic for rechargingSpeed power increase per level
+        if (id === 'rechargingSpeed') {
+             boost.power++; // Each level adds 1 to regen rate
+        }
+
+        checkTaskProgress('boost', id);
+        // Use the passed boostName or fallback to a generic message
+        showNotification(`Буст "${boostName || boost.name}" улучшен!`, 'success'); 
+        renderAll();
+    } else {
+        showNotification('Недостаточно монет!', 'error');
+    }
+}
+
+function buySkin(id) {
+    const skin = SKINS_DATA[id];
+    if (skin.acquisition.type === 'store' && state.score >= skin.acquisition.cost) {
+        state.score -= skin.acquisition.cost;
+        state.ownedSkins.push(id);
+        showNotification(`Скин "${skin.name}" куплен!`, 'success');
+        renderAll();
+    } else if (skin.acquisition.type === 'store') {
+        showNotification('Недостаточно монет!', 'error');
+    } else {
+        showNotification('Этот скин нельзя купить напрямую.', 'error');
+    }
+}
+
+function togglePremium() {
+    if (!state.brawlPass.premium) {
+        if(state.score >= 100000) {
+            state.score -= 100000;
+            state.brawlPass.premium = true;
+            showNotification('Премиум Brawl Pass активирован!', 'success');
+            renderBrawlPass();
+        } else {
+            showNotification('Нужно 100,000 монет для Премиум!', 'error');
+        }
+    } else {
+        showNotification('Премиум уже активен.', 'info');
+    }
+}
 
 
-  </script>
+// ===================================================================================
+// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
+// ===================================================================================
+
+function createFloatingNumber(event, value) {
+    const number = document.createElement('div');
+    number.className = 'floating-number';
+    number.textContent = `+${value}`;
+    const rect = DOMElements.coin.getBoundingClientRect(); // Use coin for position
+    const x = event.clientX - rect.left + (rect.width / 2); // Center X
+    const y = event.clientY - rect.top;
+    number.style.left = `${x}px`;
+    number.style.top = `${y}px`;
+    DOMElements.clickerContainer.appendChild(number);
+    setTimeout(() => number.remove(), 1500);
+}
+
+function showNotification(message, type = 'info') {
+    DOMElements.notification.textContent = message;
+    DOMElements.notification.style.backgroundColor = type === 'error' ? '#e53e3e' : (type === 'success' ? '#48bb78' : '#2d3748'); // Added success color
+    DOMElements.notification.style.opacity = 1;
+    DOMElements.notification.style.top = '20px';
+    setTimeout(() => {
+        DOMElements.notification.style.opacity = 0;
+        DOMElements.notification.style.top = '-50px';
+    }, 2000);
+}
+
+// ===================================================================================
+// --- УПРАВЛЕНИЕ СОСТОЯНИЕМ И НАВИГАЦИЯ ---
+// ===================================================================================
+
+function saveState() {
+    localStorage.setItem('ultimateClickerState', JSON.stringify(state));
+}
+
+function loadState() {
+    const savedState = localStorage.getItem('ultimateClickerState');
+    state = getDefaultState();
+    if (savedState) {
+        // Deep merge to prevent losing data on updates
+        const parsedState = JSON.parse(savedState);
+        for(const key in state) {
+            if(parsedState[key] !== undefined) {
+                if (typeof state[key] === 'object' && state[key] !== null && !Array.isArray(state[key])) {
+                    // For objects, deep merge
+                    Object.assign(state[key], parsedState[key]);
+                } else {
+                    // For primitive types or arrays, simply overwrite
+                    state[key] = parsedState[key];
+                }
+            }
+        }
+        // Ensure boost names are preserved even if not in old saved state
+        for (const boostId in state.boosts) {
+            if (!state.boosts[boostId].name && getDefaultState().boosts[boostId]) {
+                state.boosts[boostId].name = getDefaultState().boosts[boostId].name;
+            }
+        }
+    }
+}
+
+function setupNavigation() {
+    DOMElements.navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.dataset.target;
+            DOMElements.sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(targetId).classList.add('active');
+            
+            DOMElements.navLinks.forEach(navLink => navLink.classList.remove('active-nav'));
+            link.classList.add('active-nav');
+        });
+    });
+}
+
+// ===================================================================================
+// --- ИНИЦИАЛИЗАЦИЯ ИГРЫ ---
+// ===================================================================================
+
+function gameLoop() {
+    regenerateEnergy();
+    // Tap bot income
+    if (state.boosts.tapBot.level > 0) {
+        state.score += state.boosts.tapBot.power;
+        renderScoreAndRank();
+    }
+    saveState();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    processOfflineGains(); // Check for offline gains immediately on load
+    renderAll();
+    setupNavigation();
+
+    // Attach click event to the coin
+    DOMElements.coin.addEventListener('click', handleCoinClick);
+
+    // Start game loop (energy regen, passive income)
+    setInterval(gameLoop, 1000); // Run every second
+});
+
+</script>
 </body>
 </html>
-
 

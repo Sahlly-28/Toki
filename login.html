@@ -9,12 +9,51 @@
       background: #000;
       color: #fff;
       font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Прелоадер */
+    #preloader {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loader {
+      width: 60px;
+      height: 60px;
+      border: 6px solid #333;
+      border-top: 6px solid #7c3aed;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    .loading-text {
+      color: #aaa;
+      font-size: 1rem;
+      font-style: italic;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    #main-content {
+      display: none;
       display: flex;
       flex-direction: column;
       align-items: center;
       height: 100vh;
-      margin: 0;
     }
+
     header {
       width: 100%;
       background: rgba(0,0,0,0.7);
@@ -24,14 +63,17 @@
       gap: 1rem;
       box-sizing: border-box;
     }
+
     header a {
       color: white;
       text-decoration: none;
       font-weight: bold;
     }
+
     header a:hover {
       color: #ffd700;
     }
+
     form {
       background: #111;
       padding: 2rem;
@@ -41,6 +83,7 @@
       margin-top: auto;
       margin-bottom: auto;
     }
+
     input[type="text"] {
       width: 100%;
       padding: 0.5rem;
@@ -49,6 +92,7 @@
       border: none;
       margin-bottom: 1rem;
     }
+
     button {
       width: 100%;
       padding: 0.7rem;
@@ -59,9 +103,11 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
     button:hover {
       background: #a78bfa;
     }
+
     .error {
       color: #ff5555;
       margin-bottom: 1rem;
@@ -71,47 +117,64 @@
 </head>
 <body>
 
-<header>
-  <a href="index.html">🏠 Главная</a>
-  <a href="login.html">🔐 Вход</a>
-  <a href="clicker.html">🎮 Кликер</a>
-  <a href="chat.html">💬 Чат</a>
-  <a href="badges.html">🏆 Бейджи</a>
-  <a href="profil.html">👤 Профиль</a>
-  <a href="leader.html">🏆leader</a>
-</header>
+  <!-- Прелоадер -->
+  <div id="preloader">
+    <div class="loader"></div>
+    <div class="loading-text">Загрузка...</div>
+  </div>
 
-<form id="loginForm" autocomplete="off">
-  <h2>Вход</h2>
-  <div class="error" id="errorMsg"></div>
-  <input type="text" id="username" placeholder="Введите имя" />
-  <button type="submit">Войти</button>
-</form>
+  <!-- Основной контент -->
+  <div id="main-content">
+    <header>
+      <a href="index.html">🏠 Главная</a>
+      <a href="login.html">🔐 Вход</a>
+      <a href="clicker.html">🎮 Кликер</a>
+      <a href="badges.html">🏆 Бейджи</a>
+      <a href="profil.html">👤 Профиль</a>
+      <a href="leader.html">🏆leader</a>
+    </header>
 
-<script>
-  const form = document.getElementById('loginForm');
-  const errorMsg = document.getElementById('errorMsg');
+    <form id="loginForm" autocomplete="off">
+      <h2>Вход</h2>
+      <div class="error" id="errorMsg"></div>
+      <input type="text" id="username" placeholder="Введите имя" required />
+      <button type="submit">Войти</button>
+    </form>
+  </div>
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const username = document.getElementById('username').value.trim();
+  <script>
+    // Прелоадер
+    window.addEventListener('load', () => {
+      const preloader = document.getElementById('preloader');
+      const content = document.getElementById('main-content');
+      setTimeout(() => {
+        preloader.style.display = 'none';
+        content.style.display = 'flex';
+      }, 500); // Плавное появление
+    });
 
-    if (username.length < 2) {
-      errorMsg.textContent = 'Введите корректное имя (мин. 2 символа)';
-      return;
-    }
+    // Обработка формы входа
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
 
-    // Сохраняем имя в localStorage
-    localStorage.setItem('username', username);
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value.trim();
 
-    // Сбрасываем счетчик кликов (если есть)
-    localStorage.setItem('clickCount', '0');
+      if (username.length < 2) {
+        errorMsg.textContent = 'Введите корректное имя (мин. 2 символа)';
+        return;
+      }
 
-    // Перенаправляем на страницу профиля
-    window.location.href = 'profil.html';
-  });
-</script>
+      // Сохраняем имя и сбрасываем клики
+      localStorage.setItem('username', username);
+      localStorage.setItem('clickCount', '0');
 
+      // Перенаправление
+      window.location.href = 'profil.html';
+    });
+  </script>
 </body>
 </html>
+
 

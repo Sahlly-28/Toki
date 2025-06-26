@@ -1,210 +1,305 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>🏆 Бейджи — Токи</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: "Segoe UI", sans-serif;
-      background-color: #000;
-      color: #fff;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8" />
+    <title>🏆 Бейджи — Токи</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Variables from NotCoin Clicker for consistency */
+        :root {
+            --glow-color: #ffd700; /* Gold/Yellow glow */
+            --background-start: #232323; /* Dark grey start for radial gradient */
+            --background-end: #000000;   /* Black end for radial gradient */
+            --text-color: #ffffff;      /* White text */
+            --secondary-text-color: #888888; /* Lighter grey for secondary text */
+            --panel-bg: #1c1c1c;         /* Dark charcoal for panels/sections */
+            --item-bg: #2a2a2a;          /* Slightly lighter charcoal for list items/posts */
+            --border-color: #333333;     /* Dark grey for borders */
+            /* Rarity colors (if used for future elements, maintaining from clicker) */
+            --rarity-common: #9ca3af;
+            --rarity-rare: #3b82f6;
+            --rarity-epic: #a855f7;
+            --rarity-legendary: #f59e0b;
 
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 200vw;
-      height: 200vh;
-      background:
-        radial-gradient(circle at 30% 30%, #ff0080, transparent 50%),
-        radial-gradient(circle at 70% 40%, #00ffd5, transparent 50%),
-        radial-gradient(circle at 40% 70%, #fffd00, transparent 50%),
-        radial-gradient(circle at 60% 60%, #00ff00, transparent 50%);
-      animation: moveBackground 30s linear infinite;
-      z-index: -1;
-      filter: blur(100px);
-    }
+            --success-color: #48bb78; /* Green for success/completed items */
+        }
 
-    @keyframes moveBackground {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      50% { transform: translate(5%, -5%) rotate(180deg); }
-      100% { transform: translate(0, 0) rotate(360deg); }
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            font-family: 'Inter', sans-serif; /* Consistent font with Toki app */
+            /* Apply the radial gradient background from the clicker */
+            background: radial-gradient(circle, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-color);
+            overflow-x: hidden; /* Prevent horizontal scroll */
+            display: flex;
+            flex-direction: column; /* For sticky footer */
+        }
 
-    header {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
+        /* Removed the conflicting body::before background animation as the radial-gradient is sufficient */
 
-    header h1 {
-      margin: 0;
-      color: #7c3aed;
-    }
+        header {
+            background: var(--panel-bg); /* Use panel background */
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            border-bottom: 1px solid var(--border-color); /* Add border for separation */
+            border-radius: 0 0 12px 12px; /* Rounded bottom corners */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+        }
 
-    nav a {
-      color: white;
-      margin: 0 0.8rem;
-      text-decoration: none;
-      font-weight: bold;
-    }
+        header h1 {
+            margin: 0;
+            color: var(--glow-color); /* Use glow color for main title */
+            font-size: 2rem; /* Consistent font size */
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5); /* Text glow */
+        }
 
-    nav a:hover {
-      color: #ffd700;
-    }
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end; /* Align links to the right */
+        }
 
-    main {
-      padding: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
+        nav a {
+            color: var(--secondary-text-color); /* Secondary text color for links */
+            text-decoration: none;
+            margin: 0 0.6rem; /* Slightly reduced margin for more links */
+            font-weight: bold;
+            transition: color 0.3s;
+            padding: 0.5rem 0; /* Add padding for better click/tap target */
+        }
 
-    .badges {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1.5rem;
-    }
+        nav a:hover {
+            color: var(--glow-color); /* Glow color on hover */
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); /* Subtle text glow on hover */
+        }
 
-    .badge {
-      background: #111;
-      border-radius: 12px;
-      padding: 1rem;
-      text-align: center;
-      box-shadow: 0 0 15px #7c3aed55;
-      opacity: 0.3;
-      transition: opacity 0.3s ease;
-    }
+        main {
+            flex: 1; /* Allows main content to grow and push footer down */
+            padding: 2rem 1rem; /* Added horizontal padding */
+            max-width: 900px;
+            margin: 1rem auto; /* Add top margin for spacing from header */
+            width: calc(100% - 2rem); /* Adjust width for padding */
+        }
 
-    .badge.active {
-      opacity: 1;
-      box-shadow: 0 0 20px #a78bfa;
-    }
+        .badges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+        }
 
-    .badge img {
-      width: 60px;
-      margin-bottom: 0.5rem;
-    }
+        .badge {
+            background: var(--item-bg); /* Use item background */
+            border-radius: 12px; /* Consistent rounded corners */
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border-color); /* Add border */
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2); /* Soft glow */
+            opacity: 0.5; /* Default opacity for unachieved */
+            transition: opacity 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
 
-    .badge h3 {
-      margin: 0.5rem 0 0.2rem;
-      color: #d8b4fe;
-    }
+        .badge:hover:not(.active) {
+            transform: translateY(-3px); /* Subtle lift on hover for unachieved */
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .badge.active:hover {
+            transform: scale(1.02); /* Slight scale on hover for achieved */
+        }
 
-    .badge p {
-      font-size: 0.9rem;
-      color: #ccc;
-    }
+        .badge.active {
+            opacity: 1;
+            box-shadow: 0 0 20px var(--glow-color), 0 0 30px rgba(255, 215, 0, 0.5); /* Stronger glow for active badges */
+            border-color: var(--glow-color); /* Highlight border */
+        }
 
-    footer {
-      text-align: center;
-      padding: 1rem;
-      background: rgba(0,0,0,0.7);
-      color: #888;
-      font-size: 0.9rem;
-    }
-  </style>
+        .badge img {
+            width: 80px; /* Increased icon size for better visibility */
+            height: 80px; /* Maintain aspect ratio */
+            margin-bottom: 0.5rem;
+            border-radius: 50%; /* Make badge icons circular if desired */
+            padding: 5px;
+            background-color: rgba(255, 215, 0, 0.1); /* Subtle background for icons */
+        }
+
+        .badge h3 {
+            margin: 0.5rem 0 0.2rem;
+            color: var(--glow-color); /* Glow color for badge titles */
+            font-size: 1.1rem; /* Slightly smaller for badges */
+        }
+
+        .badge p {
+            font-size: 0.9rem;
+            color: var(--secondary-text-color); /* Secondary text color for descriptions */
+        }
+
+        /* Progress text and bar styling */
+        .badge .progress-text {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--secondary-text-color); /* Default progress text color */
+            font-weight: bold;
+        }
+
+        .badge .progress-bar-container {
+            height: 10px; /* Slightly thicker bar */
+            background: var(--border-color); /* Darker background for the bar */
+            border-radius: 5px; /* More rounded ends for the bar */
+            overflow: hidden;
+            margin-top: 0.3rem;
+            border: 1px solid rgba(255, 215, 0, 0.2); /* Subtle border for bar container */
+        }
+
+        .badge .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #fde047, #f59e0b); /* Gold gradient for progress */
+            width: 0%; /* Default width */
+            transition: width 0.5s ease-out; /* Smooth transition for width */
+        }
+
+        .badge.active .progress-text {
+            color: var(--success-color); /* Green for achieved status */
+        }
+
+        .badge.active .progress-bar {
+            background: var(--success-color); /* Solid green for achieved bar */
+        }
+
+        footer {
+            margin-top: auto; /* Push footer to the bottom */
+            text-align: center;
+            padding: 1rem;
+            background: var(--panel-bg); /* Panel background */
+            color: var(--secondary-text-color); /* Secondary text color */
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color); /* Top border */
+            border-radius: 12px 12px 0 0; /* Rounded top corners */
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+        }
+
+        @media(max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem; /* Smaller title on mobile */
+            }
+            nav {
+                width: 100%; /* Navigation takes full width */
+                justify-content: center; /* Center nav items */
+                margin-top: 0.5rem;
+            }
+            nav a {
+                margin: 0 0.3rem; /* Further reduce margin between nav items */
+                font-size: 0.75rem;
+            }
+            .badges {
+                grid-template-columns: 1fr; /* Single column on small screens */
+            }
+            main {
+                padding: 1.5rem 0.5rem; /* Adjusted padding for smaller screens */
+                width: calc(100% - 1rem);
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <h1>Бейджи</h1>
-    <nav>
-      <a href="index.html">🏠 Главная</a>
-      <a href="login.html">🔐 Вход</a>
-      <a href="clicker.html">🎮 Кликер</a>
-      <a href="chat.html">💬 Чат</a>
-      <a href="badges.html">🏆 Бейджи</a>
-       <a href="profil.html">👤Профил</a>
-       <a href="leader.html">🏆leader</a>
-    </nav>
-  </header>
+    <header>
+        <h1>Бейджи</h1>
+        <nav>
+            <a href="index.html">🏠 Главная</a>
+            <a href="login.html">🔐 Вход</a>
+            <a href="clicker.html">🎮 Кликер</a>
+            <a href="badges.html">🏆 Бейджи</a>
+            <a href="profil.html">👤 Профил</a>
+        </nav>
+    </header>
 
-  <main>
-    <div class="badges">
-      <div class="badge" data-required="10">
-        <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" alt="10 кликов">
-        <h3>10 кликов</h3>
-        <p>🎉 Первый шаг</p>
-      </div>
-      <div class="badge" data-required="100">
-        <img src="https://cdn-icons-png.flaticon.com/512/747/747545.png" alt="100 кликов">
-        <h3>100 кликов</h3>
-        <p>🧠 Кликер профи</p>
-      </div>
-      <div class="badge" data-required="1000">
-        <img src="https://cdn-icons-png.flaticon.com/512/866/866218.png" alt="1000 кликов">
-        <h3>1000 кликов</h3>
-        <p>🔥 Почти миллионер</p>
-      </div>
-      <div class="badge" data-required="10000">
-        <img src="https://cdn-icons-png.flaticon.com/512/1998/1998611.png" alt="10000 кликов">
-        <h3>10,000 кликов</h3>
-        <p>💎 Ты легенда</p>
-      </div>
-      <div class="badge" data-required="100000">
-        <img src="https://cdn-icons-png.flaticon.com/512/2764/2764592.png" alt="100000 кликов">
-        <h3>100,000 кликов</h3>
-        <p>🤖 Машина</p>
-      </div>
-    </div>
-  </main>
+    <main>
+        <div class="badges">
+            <div class="badge" data-required="10">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZmlsbD0iI0ZGRDcwMCIgZD0iTTI1NiA1MTJDMTc0LjI3NyA1MTIgMTAyLjgyMyA0NjMuMzUgNjcuNTQxIDM4NS43NTRDNzIuOTM3IDM2NS42OTYgOTkuMzY4IDM1MC45OTkgMTI4IDM1MC45OTlIMzg0QzQxMi42MzIgMzUwLjk5OSA0MzkuMDYzIDM2NS42OTYgNDQ0LjQ1OSAzODUuNzU0QzQwMS4xNzcgNDYzLjM1IDMzNy43MjMgNTEyIDI1NiA1MTJaIi8+CiAgICA8cGF0aCBmaWxsPSIjRjJERjAwIiBkPSJNMjU2IDQ0OUMxODkuNDMxIDQ0OSA1MzAuOTY0IDQ0OSAxNDguNTY4IDM4MC4yMDRDMTA5LjAxIDMxNy41NTkgMTMwLjI1NSAyNTYgMjU2IDI1NkMzODUuNzQ1IDI1NiA0MDYuOTkgMzE3LjU1OSA0NDUuNDMyIDM4MC4yMDRDNDcwLjgzNiA0MDQuMzk2IDQ0Mi41NjkgNDQ5IDI1NiA0NDlaIi8+CiAgICA8cGF0aCBmaWxsPSIjRkZGODAwIiBkPSJNNDcwLjgzNiAzODAuMjA0QzQ2NC4zNjUgMzU2LjQ2IDQ0MC40OTQgMzIyLjgyNSA0MzEuNjcyIDMwOC45NDJDNDMwLjcwNSAzMDcuODY0IDQyOS44NzkgMzA3LjgyMSA0MjguOTgzIDMwNy43MDJDMzg5LjU5NSAzMDcuNzAyIDM2MS43ODUgMjg2LjU5MiAzNDIuOTcyIDI0Mi4xNDJDNDMyLjY1NSAyMTUuNjY3IDQyMi4xODYgMTc4LjM4MiA0MTUuMDIxIDE2MS41NDdDMzk0LjkzNyAxMTMuMjI5IDMzOS44MjggOTYgMjU2IDk2QzE3Mi4xNzIgOTYgMTIyLjA2MyAxMTMuMjI5IDEwMC4wNyAxNjEuNTQ3QzkzLjgyMTcgMTc4LjM4MiA4Mi44OTM0IDIxNS42NjcgNzIuMzQ1IDI0Mi4xNDJDNTMuNTU1IDIzNy41OTIgMjUuNzQ1IDIxNi40ODIgMjUuNzQ1IDIxNi40ODJDNDAuNDk0IDIxNi40ODIgNzUuNjY4IDI1NiA2Ny41NDEgMzg1Ljc1NEM2MC45NjQgNDE2Ljk2IDc1LjA5NiA0NDkgMTEwLjg3IDQ0OUMxMjguODggNDQ5IDE0Ny40NDIgNDQ3LjIxNyAxNjYuNTM1IDQ0MC4wMTVDMTg1LjYzMiA0MzMuNTQxIDE5OS4wMTkgNDIzLjc5MiAyMDkuMTQyIDQxNi45NjRDNDEzLjQxMiA0MTYuNzE5IDQxNy42ODMgNDE2LjUyNSA0MjEuOTUzIDQxNi40MDZDNjU5LjkzNyAyMTYuNDgyIDQ0OC41NjggMzg2LjcwNCA0NzAuODM2IDM4MC4yMDRaIi8+CiAgICA8cGF0aCBmaWxsPSIjRkZGRkZGIiBkPSJNMjU2IDQ0OUMyNjIuNTI4IDQ0OSAyNjguODg4IDQ0OC44MTMgMjczLjA1MiA0NDguMTE4QzMwNC43NjMgNDQ1LjMzNiAzMzIuMTY0IDQyMy45NjggMzQ1LjM1NCAzOTkuOTA5QzM1NC45MiAzODkuNzExIDM2Mi41MzUgMzgxLjYyMyAzNjguMzM1IDM3Ni41MjRDMzg0LjEyMyAzNjQuNzcgNDAzLjA4NSAzNzkuOTAzIDQ0NC42MzUgMzc2LjQyM0M0NTcuNzU3IDM3My42MTUgNDY1LjYxMyAzNDQuODIyIDQ3MC42OTcgMzIwLjU5NEM0NzAuODM2IDM4MC4yMDQgNDY0LjM2NSAzNTYuNDYgNDQ0LjYxIDM4MC4yMDdDMzgyLjIyNyAzODUuNDIzIDM0MS41NjMgMzM2Ljg3NCAzNjUuNzA5IDI5MC41OTZDMzg3LjEwOCAyNDEuNzI4IDM4NS44MDIgMTg5LjY5IDM3NS42MTUgMTczLjA4QzM3NS4xMjkgMTcyLjUzMSAzNzQuNjE2IDE3Mi42MTYgMzc0LjA3MyAxNzIuNjgxQzM2Ni44NTcgMTc0LjIzMyAzNDMuMDc3IDE4My4xMDYgMzExLjExMyAxOTYuOTM5QzI3OC4wOTQgMjEyLjMwNSAyNTYgMjQ0LjkzNyAyNTYgMzA4Ljc1OUMyNTYgMzQwLjUyMiAyNjYuMzk2IDM2My43NzggMjczLjA1MiAzNzYuNTE2QzI3My42MzUgMzc2LjU4NSAyNzQuMjAxIDM3Ni42NTMgMjc0Ljc2MiAzNzYuNzE5QzMwNi4yMDggMzgxLjU2MSAzMzcuNjAzIDQwNi43ODUgMzQ5LjQwMiA0MzAuNzg4QzM1NC42MDUgNDQxLjI5MSAzNTguNDAzIDQ0OSAzNzUuNzg1IDQ0OUM0MDkuNjUgNDQ5IDQ0NC4wNjQgNDE2Ljk2IDQ3MC44MzYgMzgwLjIwNFoiLz4KPC9zdmc+" alt="First Clicks Badge">
+                <h3>10 кликов</h3>
+                <p>🎉 Первый шаг</p>
+            </div>
+            <div class="badge" data-required="100">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjc1MiAyOTQuNjVDMTkyLjc1MiAyNjAuMzIxIDIyMC42MTMgMjMzLjQyNSAyNTYgMjMzLjQyNUMyOTEuMzg3IDIzMy40MjUgMzE5LjI0OCAyNjAuMzIxIDMxOS4yNDggMjk0LjY1QzMxOS4yNDggMzI4Ljk3OSAyOTEuMzg3IDM1NC44NzUgMjU2IDM1NC44NzVaIiBmaWxsPSIjRkZGRjAwIi8+CiAgPHBhdGggZD0iTTI1NiA2MS4xMjVDMjA2LjIxNyA2MS4xMjUgMTYxLjMyNyA3OC4zMzIgMTM0LjQ0NiAxMTUuMjY1TDUwLjI2MyAyMTcuNjYzQzMyLjY2NiAyMzkuMTY1IDIyLjUgMjU4LjY3NSAyMi41IDI3OC4yOTZDMjIuNSAzMzcuNTAxIDExMC44NTQgMzY2LjY1NSAxNzguMTM1IDM1NS40MTdDMjI3LjYxOCAzNDcuMDQ1IDI0Ny44NzUgMjkyLjY3OCAyNTYgMjUyLjk2QzI2NC4xMjUgMjkzLjI1NCAyNzEuNTM5IDM0Ny43NDIgMzM1Ljg2NSAzNTUuNDIzQzQwMC4xNTEgMzY2LjY2NSAzODguMzY3IDMzNy42OTQgNDYxLjc1MiAyNzguMjIyQzQ4My44NzUgMjY1LjEwMyA0OTAuNzUyIDI0NS41OTMgNDkwLjc1MiAyMTYuNTUyQzQ5MC43NTIgMTcyLjI2NSAzNDcuMTg0IDYxLjEyNSAyNTYgNjEuMTI1WiIgZmlsbD0idXJsKCNwYWludDFfbGluZWFyXzIzNF81MzcpIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfMjM0XzUzNyIgeDE9IjI1NiIgeTE9IjYxLjEyNSIgeDI9IjI1NiIgeTI9IjQ3OC44NzUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iIzU1RjRGQiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNjQxNDEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfMjM0XzUzNyIgeDE9IjI1NiIgeTE9IjYxLjEyNSIgeDI9IjI1NiIgeTI9IjQ5MC43NTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iI0ZGRkZGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNEMkQyRDIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgo8L3N2Zz4=" alt="100 Clicks Badge">
+                <h3>100 кликов</h3>
+                <p>🧠 Кликер профи</p>
+            </div>
+            <div class="badge" data-required="1000">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjc1MiAyOTQuNjVDMTkyLjc1MiAyNjAuMzIxIDIyMC42MTMgMjMzLjQyNSAyNTYgMjMzLjQyNUMyOTEuMzg3IDIzMy40MjUgMzE5LjI0OCAyNjAuMzIxIDMxOS4yNDggMjk0LjY1QzMxOS4yNDggMzI4Ljk3OSAyOTEuMzg3IDM1NC44NzUgMjU2IDM1NC44NzVaIiBmaWxsPSIjRkZGRjAwIi8+CiAgPHBhdGggZD0iTTI1NiA2MS4xMjVDMjA2LjIxNyA2MS4xMjUgMTYxLjMyNyA3OC4zMzIgMTM0LjQ0NiAxMTUuMjY1TDUwLjI2MyAyMTcuNjYzQzMyLjY2NiAyMzkuMTY1IDIyLjUgMjU4LjY3NSAyMi41IDI3OC4yOTZDMjIuNSAzMzcuNTAxIDExMC44NTQgMzY2LjY1NSAxNzguMTM1IDM1NS40MTdDMjI3LjYxOCAzNDcuMDQ1IDI0Ny44NzUgMjkyLjY3OCAyNTYgMjUyLjk2QzI2NC4xMjUgMjkzLjI1NCAyNzEuNTM5IDM0Ny43NDIgMzM1Ljg2NSAzNTUuNDIzQzQwMC4xNTEgMzY2LjY2NSAzODguMzY3IDMzNy42OTQgNDYxLjc1MiAyNzguMjIyQzQ4My44NzUgMjY1LjEwMyA0OTAuNzUyIDI0NS41OTMgNDkwLjc1MiAyMTYuNTUyQzQ5MC43NTIgMTcyLjI2NSAzNDcuMTg0IDYxLjEyNSAyNTYgNjEuMTI1WiIgZmlsbD0idXJsKCNwYWludDFfbGluZWFyXzIzNF81MzcpIi8+CiAgPGRlZnM+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MF9saW5lYXJfMjM0XzUzNyIgeDE9IjI1NiIgeTE9IjYxLjEyNSIgeDI9IjI1NiIgeTI9IjQ3OC44NzUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iIzU1RjRGQiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMyNjQxNDEiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfMjM0XzUzNyIgeDE9IjI1NiIgeTE9IjYxLjEyNSIgeDI9IjI1NiIgeTI9IjQ5MC43NTIiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agc3RvcC1jb2xvcj0iI0ZGRkZGRiIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNEMkQyRDIiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgo8L3N2Zz4=" alt="1000 Clicks Badge">
+                <h3>1000 кликов</h3>
+                <p>🔥 Почти миллионер</p>
+            </div>
+            <div class="badge" data-required="10000">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGgGZmlsPSIjRkZGRjAwIiBkPSJNMjU2IDM1NC44NzVDMjIwLjYxMyAzNTQuODc1IDE5Mi43NTIgMzI4Ljk3OSAxOTIuNzUyIDI5NC42NUMxOTIuNzUyIDI2MC4zMjEgMjIwLjYxMyAyMzMuNDI1IDI1NiAyMzMuNDI1QzI5MS4zODcgMjMzLjQyNSAzMTkuMjQ4IDI2MC4zMjEgMzE5LjI0OCAyOTQuNjVDMzE5LjI0OCAzMjguOTc5IDI5MS4zODcgMzU0Ljg3NSAyNTYgMzU0Ljg3NVoiLz4KICA8cGF0aCBkPSJNMjU2IDYxLjEyNUMyMDYuMjE3IDYxLjEyNSAxNjEuMzI3IDc4LjMzMiAxMzQuNDQ2IDExNS4yNjVGNTAuMjYzIDIxNy42NjNDMzIuNjY2IDIzOS4xNjUgMjIuNSAyNTguNjc1IDIyLjUgMjc4LjI5NkMyMi41IDMzNy41MDEgMTEwLjg1NCAzNjYuNjU1IDE3OC4xMzUgMzU1LjQxN0MyMjcuNjE4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KPC9zdmc+" alt="10000 Clicks Badge">
+                <h3>10,000 кликов</h3>
+                <p>💎 Ты легенда</p>
+            </div>
+            <div class="badge" data-required="100000">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGgGZmlsPSIjRkZGRjAwIiBkPSJNMjU2IDM1NC44NzVDMjIwLjYxMyAzNTQuODc1IDE5Mi43NTIgMzI4Ljk3OSAxOTIuNzUyIDI5NC42NUMxOTIuNzUyIDI2MC4zMjEgMjIwLjYxMyAyMzMuNDI1IDI1NiAyMzMuNDI1QzI5MS4zODcgMjMzLjQyNSAzMTkuMjQ4IDI2MC4zMjEgMzE5LjI0OCAyOTQuNjVDMzE5LjI0OCAzMjguOTc5IDI5MS4zODcgMzU0Ljg3NSAyNTYgMzU0Ljg3NVoiLz4KICA8cGF0aCBkPSJNMjU2IDYxLjEyNUMyMDYuMjE3IDYxLjEyNSAxNjEuMzI3IDc4LjMzMiAxMzQuNDQ2IDExNS4yNjVGNTAuMjYzIDIxNy42NjNDMzIuNjY2IDIzOS4xNjUgMjIuNSAyNTguNjc1IDIyLjUgMjc4LjI5NkMyMi41IDMzNy41MDEgMTEwLjgyNyAzNjYuNjI2IDE3OC4xMDggMzU1LjQxN0MyMjcuNTkxIDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KPC9zdmc+" alt="100000 Clicks Badge">
+                <h3>100,000 кликов</h3>
+                <p>🤖 Машина</p>
+            </div>
+             <div class="badge" data-required="500000">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGgGZmlsPSIjRkZGRjAwIiBkPSJNMjU2IDM1NC44NzVDMjIwLjYxMyAzNTQuODc1IDE5Mi43NTIgMzI4Ljk3OSAxOTIuNzUyIDI5NC42NUMxOTIuNzUyIDI2MC4zMjEgMjIwLjYxMyAyMzMuNDI1IDI1NiAyMzMuNDI1QzI5MS4zODcgMjMzLjQyNSAzMTkuMjQ4IDI2MC4zMjEgMzE5LjI0OCAyOTQuNjVDMzE5LjI0OCAzMjguOTc5IDI5MS4zODcgMzU0Ljg3NSAyNTYgMzU0Ljg3NVoiLz4KICA8cGF0aCBkPSJNMjU2IDYxLjEyNUMyMDYuMjE3IDYxLjEyNSAxNjEuMzI3IDc4LjMzMiAxMzQuNDQ2IDExNS4yNjVGNTAuMjYzIDIxNy42NjNDMzIuNjY2IDIzOS4xNjUgMjIuNSAyNTguNjc1IDIyLjUgMjc4LjI5NkMyMi41IDMzNy41MDEgMTEwLjgwMyAzNjYuNTk2IDE3OC4wODUgMzU1LjQxN0MyMjcuNTY4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KPC9zdmc+" alt="500000 Clicks Badge">
+                <h3>500,000 кликов</h3>
+                <p>🏆 Грандмастер</p>
+            </div>
+             <div class="badge" data-required="1000000">
+                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBjbGFzcz0iaWNvbiBpY29uLWJhZGdlIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZmlsbD0iI0ZGRkYwMCIgZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjc1MiAyOTQuNjVDMTkyLjI3NTIgMjYwLjMyMSAyMjAuNjEzIDIzMy40MjUgMjU2IDIzMy40MjVDMjkxLjM4NyAyMzMuNDI1IDMxOS4yNDggMjYwLjMyMSAzMTkuMjQ4IDI5NC42NUMzMTkuMjQ4IDMyOC45NzkgMjkxLjM4NyAzNTQuODc1IDI1NiAzNTQuODc1WiIvPgogIDxwYXRoIGQ9Ik0yNTYgNjEuMTI1QzIwNi4yMTcgNjEuMTI1IDE2MS4zMjcgNzguMzMyIDEzNC40NDYgMTE1LjI2NUw1MC4yNjMgMjE3LjY2M0MzMi42NjYgMjM5LjE2NSAyMi41IDI1OC42NzUgMjIuNSAyNzguMjk2QzIyLjUgMzM3LjUwMSAxMTAuODU0IDM2Ni42NTUgMTc4LjEzNSAzNTUuNDQxN0MyMjcuNjE4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRhcz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjNTVGNGZCIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzI2NDE0MSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQxX2xpbmVhcjIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KPC9zdmc+" alt="1000000 Clicks Badge">
+                <h3>1,000,000 кликов</h3>
+                <p>👑 Император</p>
+            </div>
+        </div>
+    </main>
 
-  <footer>
-    <p>© 2025 Токи. Все права защищены.</p>
-  </footer>
+    <footer>
+        <p>© 2025 Токи. Все права защищены.</p>
+    </footer>
 
-  <script>
-    const badges = document.querySelectorAll('.badge');
-    const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+    <script>
+        const badges = document.querySelectorAll('.badge');
+        // Retrieve clickCount from localStorage. Fallback to 0 if not found.
+        // It's crucial that 'clickCount' key is consistent with the clicker app's saving mechanism.
+        const clickCount = parseInt(localStorage.getItem('ultimateClickerState') ? JSON.parse(localStorage.getItem('ultimateClickerState')).totalClicks : 0);
 
-    badges.forEach(badge => {
-      const required = parseInt(badge.dataset.required);
+        badges.forEach(badge => {
+            const required = parseInt(badge.dataset.required);
 
-      // Прогресс текст
-      const progressText = document.createElement('div');
-      progressText.style.marginTop = '0.5rem';
-      progressText.style.fontSize = '0.85rem';
+            // Progress text element
+            const progressText = document.createElement('div');
+            progressText.classList.add('progress-text');
+            
+            // Progress bar container
+            const barContainer = document.createElement('div');
+            barContainer.classList.add('progress-bar-container');
 
-      // Прогресс бар
-      const barContainer = document.createElement('div');
-      barContainer.style.height = '8px';
-      barContainer.style.background = '#333';
-      barContainer.style.borderRadius = '4px';
-      barContainer.style.overflow = 'hidden';
-      barContainer.style.marginTop = '0.3rem';
+            // Actual progress bar fill
+            const bar = document.createElement('div');
+            bar.classList.add('progress-bar');
+            
+            // Calculate progress percentage
+            const progressPercentage = Math.min((clickCount / required) * 100, 100);
+            bar.style.width = `${progressPercentage}%`;
 
-      const bar = document.createElement('div');
-      bar.style.height = '100%';
-      bar.style.width = `${Math.min((clickCount / required) * 100, 100)}%`;
-      bar.style.background = clickCount >= required ? '#8ef58e' : '#7c3aed';
-      bar.style.transition = 'width 0.3s ease';
+            if (clickCount >= required) {
+                badge.classList.add('active');
+                progressText.textContent = '✅ Получено!';
+            } else {
+                progressText.textContent = `Прогресс: ${clickCount.toLocaleString()} / ${required.toLocaleString()}`;
+            }
 
-      barContainer.appendChild(bar);
-
-      if (clickCount >= required) {
-        badge.classList.add('active');
-        progressText.textContent = '✅ Получено!';
-        progressText.style.color = '#8ef58e';
-      } else {
-        progressText.textContent = `Прогресс: ${clickCount} / ${required}`;
-        progressText.style.color = '#ccc';
-      }
-
-      badge.appendChild(progressText);
-      badge.appendChild(barContainer);
-    });
-  </script>
+            barContainer.appendChild(bar); // Add bar to its container
+            badge.appendChild(progressText); // Add text below the badge content
+            badge.appendChild(barContainer); // Add bar below the text
+        });
+    </script>
 
 </body>
 </html>
-
 

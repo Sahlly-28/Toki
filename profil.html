@@ -1,228 +1,481 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>Профиль — Токи</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    body {
-      background: #000;
-      color: #fff;
-      font-family: "Segoe UI", sans-serif;
-      margin: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-      overflow-x: hidden;
-    }
+    <meta charset="UTF-8" />
+    <title>Профиль — Токи</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        /* CSS Variables from NotCoin Clicker for consistency */
+        :root {
+            --glow-color: #ffd700; /* Gold/Yellow glow */
+            --background-start: #232323; /* Dark grey start for radial gradient */
+            --background-end: #000000;   /* Black end for radial gradient */
+            --text-color: #ffffff;      /* White text */
+            --secondary-text-color: #888888; /* Lighter grey for secondary text */
+            --panel-bg: #1c1c1c;         /* Dark charcoal for panels/sections */
+            --item-bg: #2a2a2a;          /* Slightly lighter charcoal for list items/posts */
+            --border-color: #333333;     /* Dark grey for borders */
+            /* Rarity colors (maintaining from clicker, if used for future elements) */
+            --rarity-common: #9ca3af;
+            --rarity-rare: #3b82f6;
+            --rarity-epic: #a855f7;
+            --rarity-legendary: #f59e0b;
 
-    /* Фон с анимацией — можно использовать твой стиль */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 200vw; height: 200vh;
-      background:
-        radial-gradient(circle at 30% 30%, #ff0080, transparent 50%),
-        radial-gradient(circle at 70% 40%, #00ffd5, transparent 50%),
-        radial-gradient(circle at 40% 70%, #fffd00, transparent 50%),
-        radial-gradient(circle at 60% 60%, #00ff00, transparent 50%);
-      animation: moveBackground 30s linear infinite;
-      z-index: -1;
-      filter: blur(100px);
-    }
+            --success-color: #48bb78; /* Green for success/completed items */
+        }
 
-    @keyframes moveBackground {
-      0% { transform: translate(0, 0) rotate(0deg); }
-      50% { transform: translate(5%, -5%) rotate(180deg); }
-      100% { transform: translate(0, 0) rotate(360deg); }
-    }
+        body {
+            background: radial-gradient(circle, var(--background-start) 0%, var(--background-end) 100%);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0; /* Adjust padding to be handled by main content */
+            overflow-x: hidden;
+        }
 
-    header {
-      width: 100%;
-      max-width: 900px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    header h1 {
-      color: #7c3aed;
-      margin: 0;
-    }
-    header nav a {
-      color: white;
-      margin-left: 1rem;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    header nav a:hover {
-      color: #ffd700;
-    }
+        /* Background animation */
+        body::before {
+            content: "";
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200vw;
+            height: 200vh;
+            background:
+                radial-gradient(circle at 30% 30%, #ff0080, transparent 50%),
+                radial-gradient(circle at 70% 40%, #00ffd5, transparent 50%),
+                radial-gradient(circle at 40% 70%, #fffd00, transparent 50%),
+                radial-gradient(circle at 60% 60%, #00ff00, transparent 50%);
+            animation: moveBackground 30s linear infinite;
+            z-index: -1;
+            filter: blur(80px); /* Slightly less blur than original to be more subtle */
+        }
 
-    .profile-card {
-      background: #111;
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 0 25px #7c3aedaa;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(10%, -10%) rotate(180deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
 
-    .profile-avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: #7c3aed;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 48px;
-      font-weight: bold;
-      color: #fff;
-      margin-bottom: 1rem;
-      user-select: none;
-    }
+        header {
+            width: 100%;
+            background: var(--panel-bg);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--border-color);
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        header h1 {
+            color: var(--glow-color);
+            margin: 0;
+            font-size: 2rem;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+        header nav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        header nav a {
+            color: var(--secondary-text-color);
+            margin-left: 0.8rem;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s, text-shadow 0.3s;
+            padding: 0.5rem 0;
+        }
+        header nav a:hover {
+            color: var(--glow-color);
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
 
-    .profile-name {
-      font-size: 1.8rem;
-      font-weight: bold;
-      color: #d8b4fe;
-      margin-bottom: 0.5rem;
-    }
+        main {
+            flex: 1; /* Allows main content to grow */
+            max-width: 900px;
+            width: calc(100% - 2rem); /* Adjusted for padding */
+            padding: 1rem; /* Consistent padding around main content */
+            margin: 1rem auto; /* Center with top margin */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .profile-level {
-      font-size: 1rem;
-      color: #aaa;
-      margin-bottom: 1.5rem;
-    }
+        .profile-card {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4); /* Glow shadow */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem; /* Space below the card before badges */
+        }
 
-    .progress-container {
-      width: 100%;
-      background: #222;
-      border-radius: 9999px;
-      height: 20px;
-      overflow: hidden;
-      box-shadow: inset 0 0 5px #000;
-    }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fde047, #f59e0b); /* Gold gradient */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #000; /* Black text for contrast on gold */
+            margin-bottom: 1rem;
+            user-select: none;
+            border: 3px solid rgba(255, 215, 0, 0.5); /* Glow border */
+            box-shadow: 0 0 15px var(--glow-color); /* Subtle glow */
+        }
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, #7c3aed, #a78bfa);
-      width: 0%;
-      transition: width 0.5s ease;
-    }
+        .profile-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--glow-color); /* Glow color for name */
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
 
-    .progress-text {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #ccc;
-    }
+        .profile-level {
+            font-size: 1rem;
+            color: var(--secondary-text-color);
+            margin-bottom: 1.5rem;
+        }
 
-    .logout-btn {
-      margin-top: 2rem;
-      padding: 0.7rem 1.5rem;
-      border: none;
-      border-radius: 9999px;
-      background: #7c3aed;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 0 10px #7c3aedaa;
-      transition: background-color 0.3s;
-    }
+        .progress-container {
+            width: 100%;
+            background: var(--border-color); /* Darker background for the bar */
+            border-radius: 9999px;
+            height: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 215, 0, 0.2); /* Subtle border for bar container */
+        }
 
-    .logout-btn:hover {
-      background-color: #a78bfa;
-    }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #fde047, #f59e0b); /* Gold gradient for progress */
+            width: 0%;
+            transition: width 0.5s ease;
+        }
 
-  </style>
+        .progress-text {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            margin-top: 2rem;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px; /* Consistent rounded corners */
+            background: linear-gradient(90deg, #fde047, #f59e0b); /* Gold gradient button */
+            color: #000; /* Black text for contrast */
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); /* Button glow */
+            transition: background 0.3s ease-in-out, transform 0.1s ease-out;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(90deg, #f59e0b, #fde047); /* Reverse gradient on hover */
+            transform: translateY(-2px); /* Slight lift effect */
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+        .logout-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Badges Section */
+        .badges-section {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .badges-section h2 {
+            color: var(--glow-color);
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+        }
+
+        .profile-badges-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Smaller grid for profile */
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .profile-badge-item {
+            background: var(--item-bg);
+            border-radius: 12px;
+            padding: 0.8rem;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 8px rgba(255, 215, 0, 0.1);
+            opacity: 0.5; /* Default opacity for unachieved */
+            transition: opacity 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .profile-badge-item.active {
+            opacity: 1;
+            box-shadow: 0 0 15px var(--glow-color), 0 0 20px rgba(255, 215, 0, 0.3);
+            border-color: var(--glow-color);
+        }
+
+        .profile-badge-item img {
+            width: 60px; /* Smaller badge icons */
+            height: 60px;
+            margin-bottom: 0.3rem;
+            border-radius: 50%;
+            padding: 3px;
+            background-color: rgba(255, 215, 0, 0.05);
+        }
+
+        .profile-badge-item h4 {
+            margin: 0.2rem 0;
+            color: var(--glow-color);
+            font-size: 0.9rem; /* Smaller title */
+        }
+
+        .profile-badge-item p {
+            font-size: 0.75rem; /* Smaller description */
+            color: var(--secondary-text-color);
+        }
+        
+        .profile-badge-item .progress-overlay {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: var(--secondary-text-color);
+            font-weight: bold;
+            opacity: 0.8;
+        }
+
+        .profile-badge-item.active .progress-overlay {
+            color: var(--success-color);
+            font-size: 0.8rem;
+            opacity: 1;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 1rem;
+            background: var(--panel-bg);
+            color: var(--secondary-text-color);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+            width: 100%; /* Ensure footer spans full width */
+        }
+
+        @media(max-width: 600px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            header nav {
+                justify-content: center;
+                margin-top: 0.5rem;
+            }
+            header nav a {
+                margin: 0 0.3rem;
+                font-size: 0.75rem;
+            }
+            main {
+                padding: 1rem 0.5rem;
+                width: calc(100% - 1rem);
+            }
+            .profile-card, .badges-section {
+                padding: 1.5rem;
+            }
+            .profile-badges-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Adjust for very small screens */
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <h1>Профиль</h1>
-    <nav>
-      <a href="index.html">🏠 Главная</a>
-      <a href="clicker.html">🎮 Кликер</a>
-      <a href="chat.html">💬 Чат</a>
-      <a href="badges.html">🏆 Бейджи</a>
-      <a href="profil.html"> 👤Профил</a>
-      <a href="leader.html">🏆leader</a>
-      <a href="login.html" id="logoutLink" style="color:#ff5555; display:none;">🚪 Выйти</a>
-    </nav>
-  </header>
+    <header>
+        <h1>Профиль</h1>
+        <nav>
+            <a href="index.html">🏠 Главная</a>
+            <a href="login.html">🔐 Вход</a>
+            <a href="clicker.html">🎮 Кликер</a>
+            <a href="badges.html">🏆 Бейджи</a>
+            <a href="profil.html">👤 Профиль</a>
+            <a href="login.html" id="logoutLink" style="color:var(--rarity-epic); display:none;">🚪 Выйти</a>
+        </nav>
+    </header>
 
-  <div class="profile-card" id="profileCard">
-    <div class="profile-avatar" id="profileAvatar">?</div>
-    <div class="profile-name" id="profileName">Имя пользователя</div>
-    <div class="profile-level" id="profileLevel">Уровень: 1</div>
+    <main>
+        <div class="profile-card" id="profileCard">
+            <div class="profile-avatar" id="profileAvatar">?</div>
+            <div class="profile-name" id="profileName">Имя пользователя</div>
+            <div class="profile-level" id="profileLevel">Уровень: 1</div>
 
-    <div class="progress-container" aria-label="Прогресс уровня">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div class="progress-text" id="progressText">0 / 100 XP</div>
+            <div class="progress-container" aria-label="Прогресс уровня">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">0 / 100 XP</div>
 
-    <button class="logout-btn" id="logoutBtn" style="display:none;">Выйти</button>
-  </div>
+            <button class="logout-btn" id="logoutBtn" style="display:none;">Выйти</button>
+        </div>
 
-  <script>
-    // Получаем данные пользователя из localStorage
-    const username = localStorage.getItem('username');
-    // Пример: уровень и прогресс храним в localStorage, или считаем от clickCount
-    const clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+        <section class="badges-section">
+            <h2>Ваши Бейджи</h2>
+            <div class="profile-badges-grid" id="profileBadgesGrid">
+                <!-- Badges will be rendered here by JavaScript -->
+            </div>
+        </section>
+    </main>
 
-    const profileName = document.getElementById('profileName');
-    const profileAvatar = document.getElementById('profileAvatar');
-    const profileLevel = document.getElementById('profileLevel');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const logoutLink = document.getElementById('logoutLink');
+    <footer>
+        <p>© 2025 Токи. Все права защищены.</p>
+    </footer>
 
-    if (!username) {
-      // Если не залогинен — редирект на страницу входа
-      window.location.href = 'login.html';
-    } else {
-      profileName.textContent = username;
+    <script>
+        // Define badge data directly in JS for dynamic rendering
+        const BADGES_DATA = [
+            { id: 'clicks_10', title: '10 кликов', description: '🎉 Первый шаг', required: 10, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZmlsbD0iI0ZGRDcwMCIgZD0iTTI1NiA1MTJDMTc0LjI3NyA1MTIgMTAyLjgyMyA0NjMuMzUgNjcuNTQxIDM4NS43NTRDNzIuOTM3IDM2NS42OTYgOTkuMzY4IDM1MC45OTkgMTI4IDM1MC45OTlIMzg0QzQxMi42MzIgMzUwLjk5OSA0MzkuMDYzIDM2NS42OTYgNDQ0LjQ1OSAzODUuNzU0QzQwMS4xNzcgNDYzLjM1IDMzNy43MjMgNTEyIDI1NiA1MTJaIi8+CiAgICA8cGF0aCBmaWxsPSIjRjJERjAwIiBkPSJNMjU2IDQ0OUMxODkuNDMxIDQ0OSA1MzAuOTY0IDQ0OSAxNDguNTY4IDM4MC4yMDRDMTA5LjAxIDMxNy41NTkgMTMwLjI1NSAyNTYgMjU2IDI1NkMzODUuNzQ1IDI1NiA0MDYuOTkgMzE3LjU1OSA0NDUuNDMyIDM4MC4yMDRDNDcwLjgzNiA0MDQuMzk2IDQ0Mi41NjkgNDQ5IDI1NiA0NDlaIi8+CiAgICA8cGF0aCBmaWxsPSIjRkZGODAwIiBkZXA9Ik00NzAuODM2IDM4MC4yMDRDNDY0LjM2NSAzNTYuNDYgNDQwLjQ5NCAzMjIuODI1IDQzMS42NzIgMzA4Ljk0MkM0MzAuNzA1IDMwNy44NjQgNDI5Ljg3OSAzMDcuODIxIDQyOC45ODMgMzA3LjcwMkMzODkuNTk1IDMwNy43MDIgMzYxLjc4NSAyODYuNTkyIDM0Mi45NzIgMjQyLjE0MkM0MzIuNjU1IDIxNS42NjcgNDIyLjE4NiAxNzguMzg2IDQxNS4wMjEgMTYxLjU0N0MzOTQuOTM3IDExMy4yMjkgMzM5LjgyOCA5NiAyNTYgOTZDMTcyLjE3MiA5NiAxMjIuMDYzIDExMy4yMjkgMTAwLjA3IDE2MS41NDdDOTMuODIxNyAxNzguMzgyIDgyLjg5MzQgMjE1LjY2NyA3Mi4zNDUgMjQyLjE0MkM1My41NTUgMjM3LjU5MiAyNS43NDUgMjE2LjQ4MiAyNS43NDUgMjE2LjQ4MkM0MC40OTQgMjE2LjQ4MiA3NS42NjggMjU2IDY3LjU0MSAzODUuNzU0QzYwLjk2NCA0MTYuOTYgNzUuMDk2IDQ0OSAxMTAuODcgNDQ5QzEyOC44OCA0NDkgMTQ3LjQ0MiA0NDcuMjE3IDE2Ni41MzUgNDQwLjAxNUSxMTg1LjYzMiA0MzMuNTQxIDE5OS4wMTkgNDIzLjc5MiAyMDkuMTQyNDE2Ljk2RDQxMy40MTIgNDE2LjcxOSA0MTcuNjgzIDQxNi41MjUgNDIxLjk1MyA0MTYuNDA2QzY1OS45MzcgMjE2LjQ4MiA0NDguNTY4IDM4Ni43MDQgNDcwLjgzNiAzODAuMjA0WiIvPgogICAgPHBhdGgGZmlsPSIjRkZGRkZGIiBkZT0iNMjU2IDQ0OUMyNjIuNTI4IDQ0OSAyNjguODg4IDQ0OC44MTMgMjczLjA1MiA0NDguMTE4QzMwNC43NjMgNDQ1LjMzNiAzMzIuMTY0IDQyMy45NjggMzQ1LjM1NCAzOTkuOTA5QzM1NC45MiAzODkuNzExIDM2Mi41MzUgMzgxLjYyMyAzNjguMzM1IDM3Ni41MjRDMzg0LjEyMyAzNjQuNzcgNDAzLjA4NSAzNzkuOTAzIDQ0NC42MzUgMzc2LjQyM0M0NTcuNzU3IDM3My42MTUgNDY1LjYxMyAzNDQuODIyIDQ3MC42OTcgMzIwLjU5NEM0NzAuODM2IDM4MC4yMDQgNDY0LjM2NSAzNTYuNDYgNDQ0LjYxIDM4MC4yMDdDMzgyLjIyNyAzODUuNDAzIDM0MS41NjMgMzM2Ljg3NCAzNjUuNzA5IDI5MC41OTZDMzg3LjEwOCAyNDEuNzI4IDM4NS44MDIgMTg5LjY5IDM3NS42MTUgMTczLjA4QzM3NS4xMjkgMTcyLjUzMSAzNzQuNjE2IDE3Mi42MTYgMzc0LjA3MyAxNzIuNjgxQzM2Ni44NTcgMTc0LjIzMyAzNDMuMDc3IDE4My4xMDYgMzExLjExMyAxOTYuOTM5QzI3OC4wOTQgMjEyLjMwNSAyNTYgMjQ0LjkwNyAyNTYgMzA4Ljc1OUMyNTYgMzQwLjUyMiAyNjYuMzk2IDM2My43NzggMjczLjA1MiAzNzYuNTE2QzI3My42MzUgMzc2LjU4NSAyNzQuMjAxIDM3Ni42NTMgMjc0LjcwMiAzNzYuNzE5QzMwNi4yMDggMzgxLjU2MSAzMzcuNjAzIDQwNi43ODUgMzQ5LjQwMiA0MzAuNzg4QzM1NC42MDUgNDQxLjI5MSAzNTguNDAzIDQ0OSAzNzUuNzg1IDQ0OUM0MDkuNjUgNDQ5IDQ0NC4wNjQgNDE2Ljk2IDQ3MC44MzYgMzgwLjIwNFoiLz4KPC9zdmc+' },
+            { id: 'clicks_100', title: '100 кликов', description: '🧠 Кликер профи', required: 100, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZmlsbD0iI0ZGRkYwMCIgZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjI3NTIgMjk0LjY1QzE5Mi43NTIgMjYwLjMyMSAyMjAuNjEzIDIzMy40MjUgMjU2IDIzMy40MjVDMjkxLjM4NyAyMzMuNDI1IDMxOS4yNDggMjYwLjMyMSAzMTkuMjQ4IDI5NC42NUMzMTkuMjQ4IDMyOC45NzkgMjkxLjM4NyAzNTQuODc1IDI1NiAzNTQuODc1WiIgZmlsbD0iI0ZGRkYwMCIvPgogIDxwYXRoIGQ9Ik0yNTYgNjEuMTI1QzIwNi4yMTcgNjEuMTI1IDE2MS4zMjcgNzguMzMyIDEzNC40NDYgMTE1LjI2NUw1MC4yNjMgMjE3LjY2M0MzMi42NjYgMjM5LjE2NSAyMi41IDI1OC42NzUgMjIuNSAyNzguMjk2QzIyLjUgMzM3LjUwMSAxMTAuODU0IDM2Ni42NTUgMTc4LjEzNSAzNTUuNDQxN0MyMjcuNjE4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzcnIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhclryMTRHcmFkaWVudD4KICA8L2RlZnM+Cjwvc3ZnPg==' },
+            { id: 'clicks_1000', title: '1000 кликов', description: '🔥 Почти миллионер', required: 1000, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOSu4OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODc1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZmlsbD0iI0ZGRkYwMCIgZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjI3NTIgMjk0LjY1bDEtMjc2LjEwNyAyMi4yOTIgMjYwLjMyMSAyMzMuNDI1IDI1NiAyMzMuNDI1TDI5MS4zODcgMjYwLjMyMSAzMTkuMjQ4IDI5NC42NWwxLTI3Ni4xMDcgMjIuMjkyIDI2MC4zMjEgMjMzLjQyNSAyNTYgMjMzLjQyNUwyOTEuMzg3IDI2MC4zMjEgMzE5LjI0OCAyOTQuNjVDMzE5LjI0OCAzMjguOTc5IDI5MS4zODcgMzU0LjM3NSAyNTYgMzU0Ljg3NVoiLz4KICA8cGF0aCBkPSJNMjU2IDYxLjEyNUMyMDYuMjE3IDYxLjEyNSAxNjEuMzI3IDc4LjMzMiAxMzQuNDQ2IDExNS4yNjVGNTAuMjYzIDIxNy42NjNDMzIuNjY2IDIzOS4xNjUgMjIuNSAyNTguNjc1IDIyLjUgMjc4LjI5NkMyMi41IDMzNy41MDEgMTEwLjgyNyAzNjYuNTk2IDE3OC4xMDggMzU1LjQxN0MyMjcuNTY4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzcnIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhclryMTRHcmFkaWVudD4KICA8L2RlZnM+Cjwvc3ZnPg==' },
+            { id: 'clicks_10000', title: '10,000 кликов', description: '💎 Ты легенда', required: 10000, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIi8+CjxwYXRoIGQ9Ik00MjIuMzg3IDI4NS4xOTZDMzkwLjE1NyAyNzIuNzE1IDMyMS4xMTkgMjU5LjU2OCAyNjUuNjA4IDI0OS40MzVDMjU0LjA3MyAyNDYuOTY3IDI0Ni43OTUgMjQyLjQyOCAyNDYuNzY1IDIxNS4yNzFMNDI1LjUyMiAxMDcuNzA0QzQzOC41MDcgODYuMTA5IDQ2MC4xNzggMjkuOTcyIDQ4NS41IDQxLjY0NEM1MTcuMDM1IDUyLjgyMyA1NTMuMDkgNzkuMTUzIDU2NS40MDcgMTIzLjQzNEM1NjUuNzM2IDEyMy44NTkgNTY2LjA2NSAxMjQuMjQyIDU2Ni4zNTMgMTI0LjY4NUM1NzMuMzEgMTI4LjM3IDU3OS4yOTcgMTMzLjE5MSA1ODQuMjUxIDEzOS4wMzZDNjAwLjMxOCAxNTguMzI3IDYxMi43ODUgMTg1LjQ1OCA1OTguOTI4IDIwNS4zMUM1OTQuNTA3IDIxMS4wNzUgNTkxLjkzMSAyMTQuNjY3IDU4Ny41NjkgMjE2LjQxNkM1ODUuNjUyIDIxNi41NTEgNTgyLjY3MiAyMTYuNjE2IDU4MC43MDYgMjE2LjcxOUM1NzYuOTgzIDIxNi44ODUgNTc0LjYwMyAyMTcuMDcxIDU2OS43MDkgMjE3LjQzMkM1NDIuMjU3IDIxOS40NDkgNTI1LjAyMSAyNDYuMTA3IDQ5My4yNDggMjU5LjY5NEM0NzIuMTI3IDI2OS4yNjMgNDUwLjAyIDI3Mi4xMzMgNDIyLjM4NyAyODUuMTk2WiIgZmlsbD0iIzAwNzdGMiIvPgogICAgICAgIDxwYXRoIGQ9Ik00MjIuMzg3IDI4NS4xOTZDMzkwLjE1NyAyNzIuNzE1IDMyMS4xMTkgMjU5LjU2OCAyNjUuNjA4IDI0OS40MzVDMjU0LjA3MyAyNDYuOTY3IDI0Ni43OTUgMjQyLjQyOCAyNDYuNzY1IDIxNS4yNzFMNDI1LjUyMiAxMDcuNzA0QzQzOC41MDcgODYuMTA5IDQ2MC4xNzggMjkuOTcyIDQ4NS41IDQxLjY0NEM1MTcuMDM1IDUyLjgyMyA1NTMuMDkgNzkuMTUzIDU2NS40MDcgMTIzLjQzNEM1NjUuNzM2IDEyMy44NTkgNTY2LjA2NSAxMjQuMjQyIDU2Ni4zNTMgMTI0LjY4NUM1NzMuMzEgMTI4LjM3IDU3OS4yOTcgMTMzLjE5MSA1ODQuMjUxIDEzOS4wMzZDNjAwLjMxOCAxNTguMzI3IDYxMi43ODUgMTg1LjQ1OCA1OTguOTI4IDIwNS4zMUM1OTQuNTA3IDIxMS4wNzUgNTkxLjkzMSAyMTQuNjY3IDU4Ny41NjkgMjE2LjQxNkM1ODUuNjUyIDIxNi41NTEgNTgyLjY3MiAyMTYuNjE2IDU4MC43MDYgMjE2LjcxOUM1NzYuOTgzIDIxNi44ODUgNTc0LjYwMyAyMTcuMDcxIDU2OS43MDkgMjE3LjQzMkM1NDIuMjU3IDIxOS40NDkgNTI1LjAyMSAyNDYuMTA3IDQ5My4yNDggMjU5LjY5NEM0NzIuMTI3IDI2OS4yNjMgNDUwLjAyIDI3Mi4xMzMgNDIyLjM4NyAyODUuMTk2WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CjxwYXRoIGQ9Ik01NjUuNzA5IDIxNy40MzJDNTQyLjI1NyAyMTkuNDQ5IDUyNS4wMjEgMjQ2LjEwNyA0OTMuMjQ4IDI1OS42OTRDNDcyLjEyNyAyNjkuMjYzIDQ1MC4wMiAyNzIuMTMzIDQyMi4zODcgMjg1LjE5NkM0MjIuMzg3IDI4NS4xOTYgNTQyLjI1NyAyMTkuNDQ5IDU2NS43MDkgMjE3LjQzMloiIGZpbGllPSIjMDAzRDZFIi8+Cjwvc3ZnPg==' },
+            { id: 'clicks_100000', title: '100,000 кликов', description: '🤖 Машина', required: 100000, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIi8+CjxwYXRoIGQ9Ik0yNTYgNTEyQzE3NC4yNzcgNTEyIDEwMi44MjMgNDYzLjM1IDY3LjU0MSAzODUuNzU0QzcyLjkzNyAzNjUuNjk2IDk5LjM2OCAzNTAuOTk5IDEyOCAzNTAuOTk5SDM4NEM0MTIuNjMyIDM1MC45OTkgNDM5LjA2MyAzNjUuNjk2IDQ0NC40NTkgMzg1LjU3NEM0MDEuMTc3IDQ2My4zNSAzMzcuNzIzIDUxMiAyNTYgNTEyWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CjxwYXRoIGQ9Ik0yNTYgNDQ5QzE4OS40MzEgNDQ5IDU2NS44MDMgNDQ5IDE0OC41NjggMzg0LjIwNEMxMDkuMDEgMzE3LjU1OSA1NTguNjkzIDI1NiAyNTYgMjU2QzM4NS43NDUgMjU2IDQwNi45OTUgMzE3LjU1OSA0NDUuNDMyIDM4NC4yMDRDNDcwLjgzNiA0MDQuMzk2IDQ0Mi41NjkgNDQ5IDI1NiA0NDlG1jExMy4yMjkgMTAwLjA3IDE2MS41NDdDOTMuODIxNyAxNzguMzgyIDgyLjg5MzQgMjE1LjY2NyA3Mi4zNDUgMjQyLjE0MkM1My41NTUgMjM3LjU5MiAyNS43NDUgMjE2LjQ4MiAyNS43NDUgMjE2LjQ4MkM0MC40OTQgMjE2LjQ4MiA3NS42NjggMjU2IDY3LjU0MSAzODUuNzU0QzYwLjk2NCA0MTYuOTYgNzUuMDk2IDQ0OSAxMTAuODcgNDQ5QzEyOC44OCA0NDkgMTQ3LjQ0MiA0NDcuMjE3IDE2Ni41MzUgNDQwLjAxNUwxODUuNjMyIDQzMy41NDEgMTk5LjAxOSA0MjMuNzkyIDIwOS4xNDIgNDE2Ljk2RDQxMy40MTIgNDE2LjcxOSA0MTcuNjgzIDQxNi41MjUgNDIxLjk1MyA0MTYuNDA2QzY1OS45MzcgMjE2LjQ4MiA0NDguNTY4IDM4Ni43MDQgNDcwLjgzNiAzODAuMjA0WiIgZmlsbD0idXJsKCNwYWludDFfbGluZWFyXzIzNF81MzcpIi8+CjwvZmVzPgogICAgPC9zdmc+' },
+            { id: 'clicks_500000', title: '500,000 кликов', description: '🏆 Грандмастер', required: 500000, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIi8+CjxwYXRoIGQ9Ik0yNTYgNTEyQzE3NC4yNzcgNTEyIDEwMi44MjMgNDYzLjM1IDY3LjU0MSAzODUuNzU0QzcyLjkzNyAzNjUuNjk2IDk5LjM2OCAzNTAuOTk5IDEyOCAzNTAuOTk5SDM4NEM0MTIuNjMyIDM1MC45OTkgNDM5LjA2MyAzNjUuNjk2IDQ0NC40NTkgMzg1LjU3NEM0MDEuMTc3IDQ2My4zNSAzMzcuNzIzIDUxMiAyNTYgNTEyWiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CjxwYXRoIGQ9Ik0yNTYgNDQ5QzE4OS40MzEgNDQ5IDU2NS44MDMgNDQ5IDE0OC41NjggMzg0LjIwNEMxMDkuMDEgMzE3LjU1OSA1NTguNjkzIDI1NiAyNTYgMjU2QzM4NS43NDUgMjU2IDQwNi45OTUgMzE3LjU1OSA0NDUuNDMyIDM4NC4yMDRDNDcwLjgzNiA0MDQuMzk2IDQ0Mi41NjkgNDQ5IDI1NiA0NDlG1jExMy4yMjkgMTAwLjA3IDE2MS41NDdDOTMuODIxNyAxNzguMzgyIDgyLjg5MzQgMjE1LjY2NyA3Mi4zNDUgMjQyLjE0MkM1My41NTUgMjM3LjU5MiAyNS43NDUgMjE2LjQ4MiAyNS43NDUgMjE2LjQ4MkM0MC40OTQgMjE2LjQ4MiA3NS42NjggMjU2IDY3LjU0MSAzODUuNzU0QzYwLjk2NCA0MTYuOTYgNzUuMDk2IDQ0OSAxMTAuODcgNDQ5QzEyOC44OCA0NDkgMTQ3LjQ0MiA0NDcuMjE3IDE2Ni41MzUgNDQwLjAxNUwxODUuNjMyIDQzMy41NDEgMTk5LjAxOSA0MjMuNzkyIDIwOSuMTQyNDE2Ljk2RDQxMy40MTIgNDE2LjcxOSA0MTcuNjgzIDQxNi41MjUgNDIxLjk1MyA0MTYuNDA2QzY1OS45MzcgMjE2LjQ4MiA0NDguNTY4IDM4Ni43MDQgNDcwLjgzNiAzODAuMjA0WiIgZmlsbD0idXJsKCNwYWludDFfbGluZWFyXzIzNF81MzcpIi8+CjwvZmVzPgogICAgPC9zdmc+' },
+            { id: 'clicks_1000000', title: '1,000,000 кликов', description: '👑 Император', required: 1000000, img: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cHM6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBjbGFzcz0iaWNvbiBpY29uLWJhZGdlIj4KICA8cGF0aCBkPSJNMjU2IDQ3OC44NzVDMTQ4LjQ5NiA0NzguODc1IDYxLjEyNSA0MjQuNDkgNjEuMTI1IDMwOS44OTZDNjEuMTI1IDI1My4xMDcgNzguMTE4IDIxMS4wNzUgMTAwLjY2NSAxODUuMzYzTDE4Mi4zOTcgMTA2LjQ5MUMxOTkuMTczIDc5LjcyNyAyMjkuMjI2IDYxLjEyNSAyNTYgNjEuMTI1QzI4Mi43NzQgNjEuMTI1IDMxMi44MjcgNzkuNzI3IDMyOS42MDMgMTA2LjQ5MUw0MTEuMzM1IDE4NS4zNjNDNDMzLjg4MiAyMTEuMDc1IDQ1MC44NzUgMjUzLjEwNyA0NTAuODc1IDMwOS44OTZDNDUwLjg3NSA0MjQuNDkgMzYzLjUwNCA0NzguODc1IDI1NiA0NzguODg1WiIgZmlsbD0idXJsKCNwYWludDBfbGluZWFyXzIzNF81MzcpIi8+CiAgPHBhdGggZmlsbD0iI0ZGRkYwMCIgZD0iTTI1NiAzNTQuODc1QzIyMC42MTMgMzU0Ljg3NSAxOTIuNzUyIDMyOC45NzkgMTkyLjI3NTIgMjYwLjMyMSAyMjAuNjEzIDIzMy40MjUgMjU2IDIzMy40MjVDMjkxLjM4NyAyMzMuNDI1IDMxOS4yNDggMjYwLjMyMSAzMTkuMjQ4IDI5NC42NUMzMTkuMjQ4IDMyOC45NzkgMjkxLjM4NyAzNTQuODc1IDI1NiAzNTQuODc1WiIvPgogIDxwYXRoIGQ9Ik0yNTYgNjEuMTI1QzIwNi4yMTcgNjEuMTI1IDE2MS4zMjcgNzguMzMyIDEzNC40NDYgMTE1LjI2NUw1MC4yNjMgMjE3LjY2M0MzMi42NjYgMjM5LjE2NSAyMi41IDI1OC42NzUgMjIuNSAyNzguMjk2QzIyLjUgMzM3LjUwMSAxMTAuODU0IDM2Ni42NTUgMTc4LjEzNSAzNTUuNDQxN0MyMjcuNjE4IDM0Ny4wNDUgMjQ3Ljg3NSAyOTIuNjc4IDI1NiAyNTIuOTZDMjY0LjEyNSAyOTMuMjU0IDI3MS41MzkgMzQ3Ljc0MiAzMzUuODY1IDM1NS40MjNDNDAwLjE1MSAzNjYuNjY1IDM4OC4zNjcgMzM3LjY5NCA0NjEuNzUyIDI3OC4yMjJDNDgzLjg3NSAyNjUuMTAzIDQ5MC43NTIgMjQ1LjU5MyA0OTAuNzUyIDIxNi41NTJDNDkwLjc1MiAxNzIuMjY1IDM0Ny4xODQgNjEuMTI1IDI1NiA2MS4xMjVaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMjM0XzUzNykiLz4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQ2MDBfbGluZWFyXzIzNF81MzcnIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0NzguODc1IiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM1NUY0RkIiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMjY0MTQxIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDFfbGluZWFyXzIzNF81MzciIHgxPSIyNTYiIHkxPSI2MS4xMjUiIHgyPSIyNTYiIHkyPSI0OTAuNzUyIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CiAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiNGRkZGRkYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDJEMkQyIi8+CiAgICA8L2xpbmVhclryMTRHcmFkaWVudD4KICA8L2RlZnM+Cjwvc3ZnPg=='}
+        ];
 
-      // Покажем первую букву имени в аватаре
-      profileAvatar.textContent = username[0].toUpperCase();
+        // Get DOM elements
+        const profileName = document.getElementById('profileName');
+        const profileAvatar = document.getElementById('profileAvatar');
+        const profileLevel = document.getElementById('profileLevel');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const logoutLink = document.getElementById('logoutLink');
+        const profileBadgesGrid = document.getElementById('profileBadgesGrid');
 
-      // Примерная система уровней (можно изменить)
-      // Каждый уровень = 100 XP (кликов)
-      const level = Math.floor(clickCount / 100) + 1;
-      const xpInLevel = clickCount % 100;
-      const xpToNext = 100;
+        // Function to render the profile
+        function renderProfile() {
+            // Retrieve clicker state from localStorage
+            const clickerStateString = localStorage.getItem('ultimateClickerState');
+            let totalClicks = 0;
+            let username = localStorage.getItem('username'); // Assume username is stored separately for now
 
-      profileLevel.textContent = `Уровень: ${level}`;
-      progressBar.style.width = (xpInLevel / xpToNext * 100) + '%';
-      progressText.textContent = `${xpInLevel} / ${xpToNext} XP`;
+            if (clickerStateString) {
+                try {
+                    const clickerState = JSON.parse(clickerStateString);
+                    totalClicks = clickerState.totalClicks || 0;
+                    // If username is part of clickerState, prefer that
+                    if (clickerState.playerName) {
+                        username = clickerState.playerName;
+                    }
+                } catch (e) {
+                    console.error("Error parsing ultimateClickerState from localStorage", e);
+                }
+            }
 
-      // Показать кнопку выхода
-      logoutBtn.style.display = 'inline-block';
-      logoutLink.style.display = 'inline';
+            if (!username) {
+                // If not logged in — redirect to login page
+                // Changed from '/login.html' to 'login.html' for broader compatibility
+                window.location.href = 'login.html'; 
+                return; // Stop execution
+            } else {
+                profileName.textContent = username;
 
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem('username');
-        localStorage.removeItem('clickCount');
-        window.location.href = 'login.html';
-      });
-      logoutLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.removeItem('username');
-        localStorage.removeItem('clickCount');
-        window.location.href = 'login.html';
-      });
-    }
-  </script>
+                // Show first letter of the name in avatar
+                profileAvatar.textContent = username[0] ? username[0].toUpperCase() : '?';
+
+                // Level system (example: 100 clicks per level)
+                const xpPerLevel = 100;
+                const level = Math.floor(totalClicks / xpPerLevel) + 1;
+                const xpInLevel = totalClicks % xpPerLevel;
+                const xpToNext = xpPerLevel;
+
+                profileLevel.textContent = `Уровень: ${level}`;
+                progressBar.style.width = (xpInLevel / xpToNext * 100) + '%';
+                progressText.textContent = `${xpInLevel} / ${xpToNext} XP`;
+
+                // Show logout button/link
+                logoutBtn.style.display = 'inline-block';
+                logoutLink.style.display = 'inline';
+
+                // Event Listeners for logout
+                logoutBtn.onclick = () => handleLogout();
+                logoutLink.onclick = (e) => {
+                    e.preventDefault();
+                    handleLogout();
+                };
+
+                renderBadges(totalClicks);
+            }
+        }
+
+        // Function to handle logout
+        function handleLogout() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('ultimateClickerState'); // Clear the clicker state too
+            // Changed from '/login.html' to 'login.html' for broader compatibility
+            window.location.href = 'login.html'; 
+        }
+
+        // Function to render badges
+        function renderBadges(currentClicks) {
+            profileBadgesGrid.innerHTML = ''; // Clear previous badges
+            BADGES_DATA.forEach(badgeData => {
+                const badgeItem = document.createElement('div');
+                badgeItem.classList.add('profile-badge-item');
+
+                const isAchieved = currentClicks >= badgeData.required;
+                if (isAchieved) {
+                    badgeItem.classList.add('active');
+                }
+
+                badgeItem.innerHTML = `
+                    <img src="${badgeData.img}" alt="${badgeData.title} icon">
+                    <h4>${badgeData.title}</h4>
+                    <p>${badgeData.description}</p>
+                    <div class="progress-overlay">
+                        ${isAchieved ? '✅ Получено!' : `${currentClicks.toLocaleString()} / ${badgeData.required.toLocaleString()}`}
+                    </div>
+                `;
+                profileBadgesGrid.appendChild(badgeItem);
+            });
+        }
+
+        // Initialize on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', renderProfile);
+    </script>
 
 </body>
 </html>
+
 
